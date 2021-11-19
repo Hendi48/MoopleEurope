@@ -22,15 +22,15 @@
 package constants;
 
 public class ServerConstants {
-    public static short VERSION = 83;
-    public static String[] WORLD_NAMES = {"Scania", "Bera", "Broa", "Windia", "Khaini", "Bellocan", "Mardia", "Kradia", "Yellonde", "Demethos", "Galicia", "El Nido", "Zenith", "Arcenia", "Kastia", "Judis", "Plana", "Kalluna", "Stius", "Croa", "Medere"};;
+    public static short VERSION = 65;
+    public static String[] WORLD_NAMES = {"Kradia"};
     // Rate Configuration
     public static final byte QUEST_EXP_RATE = 4;
     public static final byte QUEST_MESO_RATE = 3;
     // Login Configuration
     public static final int CHANNEL_LOAD = 150;//Players per channel
     public static final long RANKING_INTERVAL = 3600000;
-    public static final boolean ENABLE_PIC = true;
+    public static final boolean ENABLE_PIN = false;
     //Event Configuration
     public static final boolean PERFECT_PITCH = false;
     public static final String EVENTS = "automsg KerningPQ Boats Subway AirPlane elevator";
@@ -39,5 +39,5 @@ public class ServerConstants {
     //Database Configuration
     public static final String DB_URL = "jdbc:mysql://localhost:3306/MoopleDEV?autoReconnect=true";
     public static final String DB_USER = "root";
-    public static final String DB_PASS = "";
+    public static final String DB_PASS = "root";
 }

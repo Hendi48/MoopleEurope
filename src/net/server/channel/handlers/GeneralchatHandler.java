@@ -29,17 +29,19 @@ import client.command.Commands;
 
 public final class GeneralchatHandler extends net.AbstractMaplePacketHandler {
 
+    @Override
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
+        slea.readInt(); // tRequestTime
         String s = slea.readMapleAsciiString();
         MapleCharacter chr = c.getPlayer();
-        char heading = s.charAt(0);
-        if (heading == '/' || heading == '!' || heading == '@') {
+        char prefix = s.charAt(0);
+        if (prefix == '/' || prefix == '!' || prefix == '@') {
             String[] sp = s.split(" ");
             sp[0] = sp[0].toLowerCase().substring(1);
-            if (!Commands.executePlayerCommand(c, sp, heading)) {
+            if (!Commands.executePlayerCommand(c, sp, prefix)) {
                 if (chr.isGM()) {
-                    if (!Commands.executeGMCommand(c, sp, heading)) {
-                        Commands.executeAdminCommand(c, sp, heading);
+                    if (!Commands.executeGMCommand(c, sp, prefix)) {
+                        Commands.executeAdminCommand(c, sp, prefix);
                     }
                 }
             }

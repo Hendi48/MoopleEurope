@@ -38,10 +38,10 @@ public class WZTool {
     private static byte[] encKey;
 
     static {
-        byte[] iv = new byte[]{(byte) 0x4d, (byte) 0x23, (byte) 0xc7, (byte) 0x2b,
-            (byte) 0x4d, (byte) 0x23, (byte) 0xc7, (byte) 0x2b,
-            (byte) 0x4d, (byte) 0x23, (byte) 0xc7, (byte) 0x2b,
-            (byte) 0x4d, (byte) 0x23, (byte) 0xc7, (byte) 0x2b,};
+        byte[] iv = new byte[]{(byte) 0xb9, (byte) 0x7d, (byte) 0x63, (byte) 0xe9,
+            (byte) 0xb9, (byte) 0x7d, (byte) 0x63, (byte) 0xe9,
+            (byte) 0xb9, (byte) 0x7d, (byte) 0x63, (byte) 0xe9,
+            (byte) 0xb9, (byte) 0x7d, (byte) 0x63, (byte) 0xe9,};
         byte[] key = new byte[]{(byte) 0x13, 0x00, 0x00, 0x00,
             (byte) 0x08, 0x00, 0x00, 0x00,
             (byte) 0x06, 0x00, 0x00, 0x00,
@@ -55,29 +55,26 @@ public class WZTool {
         SecretKeySpec skeySpec = new SecretKeySpec(key, "AES");
         try {
             cipher = Cipher.getInstance("AES");
-        } catch (NoSuchAlgorithmException e) {
-        } catch (NoSuchPaddingException e) {
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+            throw new RuntimeException(e);
         }
         try {
             cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
         } catch (InvalidKeyException e) {
+            throw new RuntimeException("Initializing AES cipher failed (export restrictions?)", e);
         }
         encKey = new byte[0xFFFF];
         for (int i = 0; i < (0xFFFF / 16); i++) {
             try {
                 iv = cipher.doFinal(iv);
-            } catch (IllegalBlockSizeException e) {
-                e.printStackTrace();
-            } catch (BadPaddingException e) {
+            } catch (IllegalBlockSizeException | BadPaddingException e) {
                 e.printStackTrace();
             }
             System.arraycopy(iv, 0, encKey, (i * 16), 16);
         }
         try {
             iv = cipher.doFinal(iv);
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
+        } catch (IllegalBlockSizeException | BadPaddingException e) {
             e.printStackTrace();
         }
         System.arraycopy(iv, 0, encKey, 65520, 15);

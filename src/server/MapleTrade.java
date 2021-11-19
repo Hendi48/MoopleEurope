@@ -211,23 +211,6 @@ public class MapleTrade {
                 partner.getChr().message("There is not enough inventory space to complete the trade.");
                 return;
             }
-            if (local.getChr().getLevel() < 15) {
-                if (local.getChr().getMesosTraded() + local.exchangeMeso > 1000000) {
-                    cancelTrade(c);
-                    local.getChr().getClient().announce(MaplePacketCreator.sendMesoLimit());
-                    return;
-                } else {
-                    local.getChr().addMesosTraded(local.exchangeMeso);
-                }
-            } else if (c.getTrade().getChr().getLevel() < 15) {
-                if (c.getMesosTraded() + c.getTrade().exchangeMeso > 1000000) {
-                    cancelTrade(c);
-                    c.getClient().announce(MaplePacketCreator.sendMesoLimit());
-                    return;
-                } else {
-                    c.addMesosTraded(local.exchangeMeso);
-                }
-            }
             local.complete2();
             partner.complete2();
             partner.getChr().setTrade(null);

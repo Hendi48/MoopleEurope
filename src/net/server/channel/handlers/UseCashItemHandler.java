@@ -45,7 +45,6 @@ import server.MapleItemInformationProvider;
 import server.MapleShop;
 import server.MapleShopFactory;
 import server.maps.MapleMap;
-import server.maps.MapleTVEffect;
 import tools.MaplePacketCreator;
 import tools.Pair;
 import tools.data.input.SeekableLittleEndianAccessor;
@@ -298,14 +297,8 @@ public final class UseCashItemHandler extends AbstractMaplePacketHandler {
                     if (megassenger) {
                         Server.getInstance().broadcastMessage(c.getWorld(), MaplePacketCreator.serverNotice(3, c.getChannel(), medal + player.getName() + " : " + builder.toString(), ear));
                     }
-                    if (!MapleTVEffect.isActive()) {
-                        new MapleTVEffect(player, victim, messages, tvType, c.getWorld());
-                        remove(c, itemId);
-                    } else {
-                        player.dropMessage(1, "MapleTV is already in use.");
-                        return;
-                    }
-                    break;
+                    player.dropMessage(1, "MapleTV is not supported.");
+                    return;
                 case 6: //item megaphone
                     String msg = medal + c.getPlayer().getName() + " : " + slea.readMapleAsciiString();
                     whisper = slea.readByte() == 1;

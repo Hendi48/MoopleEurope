@@ -89,7 +89,7 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
         }
         if (state != MapleClient.LOGIN_SERVER_TRANSITION || !allowLogin) {
             c.setPlayer(null);
-            c.announce(MaplePacketCreator.getAfterLoginError(7));
+            //c.announce(MaplePacketCreator.getAfterLoginError(7));
             return;
         }
         c.updateLoginState(MapleClient.LOGIN_LOGGEDIN);
@@ -204,7 +204,6 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
             player.equipPendantOfSpirit();
         }
         c.announce(MaplePacketCreator.updateBuddylist(player.getBuddylist().getBuddies()));
-        c.announce(MaplePacketCreator.updateGender(player));
         player.checkMessenger();
         c.announce(MaplePacketCreator.enableReport());
         player.changeSkillLevel(SkillFactory.getSkill(10000000 * player.getJobType() + 12), (byte) (player.getLinkedLevel() / 10), 20, -1);

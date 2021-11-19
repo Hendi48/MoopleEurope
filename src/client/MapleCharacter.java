@@ -165,7 +165,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     private int bookCover;
     private int markedMonster = 0;
     private int battleshipHp = 0;
-    private int mesosTraded = 0;
     private int possibleReports = 10;
     private int dojoPoints, vanquisherStage, dojoStage, dojoEnergy, vanquisherKills;
     private int warpToId;
@@ -182,7 +181,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     private String chalktext;
     private String search = null;
     private AtomicInteger exp = new AtomicInteger();
-    private AtomicInteger gachaexp = new AtomicInteger();
     private AtomicInteger meso = new AtomicInteger();
     private int merchantmeso;
     private BuddyList buddylist;
@@ -369,10 +367,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     public void addHP(int delta) {
         setHp(hp + delta);
         updateSingleStat(MapleStat.HP, hp);
-    }
-
-    public void addMesosTraded(int gain) {
-        this.mesosTraded += gain;
     }
 
     public void addMP(int delta) {
@@ -1363,27 +1357,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         client.announce(MaplePacketCreator.modifyInventory(true, mods));
     }
 
-    public void gainGachaExp() {
-        int expgain = 0;
-        int currentgexp = gachaexp.get();
-        if ((currentgexp + exp.get()) >= ExpTable.getExpNeededForLevel(level)) {
-            expgain += ExpTable.getExpNeededForLevel(level) - exp.get();
-            int nextneed = ExpTable.getExpNeededForLevel(level + 1);
-            if ((currentgexp - expgain) >= nextneed) {
-                expgain += nextneed;
-            }
-            this.gachaexp.set(currentgexp - expgain);
-        } else {
-            expgain = this.gachaexp.getAndSet(0);
-        }
-        gainExp(expgain, false, false);
-        updateSingleStat(MapleStat.GACHAEXP, this.gachaexp.get());
-    }
-
-    public void gainGachaExp(int gain) {
-        updateSingleStat(MapleStat.GACHAEXP, gachaexp.addAndGet(gain));
-    }
-
     public void gainExp(int gain, boolean show, boolean inChat) {
         gainExp(gain, show, inChat, true);
     }
@@ -1643,10 +1616,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         return exp.get();
     }
 
-    public int getGachaExp() {
-        return gachaexp.get();
-    }
-
     public int getExpRate() {
         return expRate;
     }
@@ -1884,10 +1853,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
 
     public int getMesoRate() {
         return mesoRate;
-    }
-
-    public int getMesosTraded() {
-        return mesosTraded;
     }
 
     public int getMessengerPosition() {
@@ -2525,7 +2490,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             ret.int_ = rs.getInt("int");
             ret.luk = rs.getInt("luk");
             ret.exp.set(rs.getInt("exp"));
-            ret.gachaexp.set(rs.getInt("gachaexp"));
             ret.hp = rs.getInt("hp");
             ret.maxhp = rs.getInt("maxhp");
             ret.mp = rs.getInt("mp");
@@ -3485,7 +3449,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             ps.setInt(5, luk);
             ps.setInt(6, int_);
             ps.setInt(7, Math.abs(exp.get()));
-            ps.setInt(8, Math.abs(gachaexp.get()));
+            ps.setInt(8, 0);
             ps.setInt(9, hp);
             ps.setInt(10, mp);
             ps.setInt(11, maxhp);
@@ -3884,10 +3848,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
 
     public void setExp(int amount) {
         this.exp.set(amount);
-    }
-
-    public void setGachaExp(int amount) {
-        this.gachaexp.set(amount);
     }
 
     public void setFace(int face) {

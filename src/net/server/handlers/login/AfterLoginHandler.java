@@ -22,6 +22,7 @@
 package net.server.handlers.login;
 
 import client.MapleClient;
+import constants.ServerConstants;
 import net.AbstractMaplePacketHandler;
 import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
@@ -36,12 +37,15 @@ public final class AfterLoginHandler extends AbstractMaplePacketHandler {
             c3 = slea.readByte();
         }
         if (c2 == 1 && c3 == 1) {
-            if (c.getPin() == null) {
+            if (!ServerConstants.ENABLE_PIN) {
+                c.announce(MaplePacketCreator.pinAccepted());
+            } else if (c.getPin() == null) {
                 c.announce(MaplePacketCreator.registerPin());
             } else {
                 c.announce(MaplePacketCreator.requestPin());
             }
         } else if (c2 == 1 && c3 == 0) {
+            slea.readInt();
             String pin = slea.readMapleAsciiString();
             if (c.checkPin(pin)) {
                 c.announce(MaplePacketCreator.pinAccepted());

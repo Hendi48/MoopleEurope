@@ -76,7 +76,7 @@ public final class PacketProcessor {
         handlers = new MaplePacketHandler[handlers.length];
 
         registerHandler(RecvOpcode.PONG, new KeepAliveHandler());
-        registerHandler(RecvOpcode.CUSTOM_PACKET, new CustomPacketHandler());
+        registerHandler(RecvOpcode.EXCEPTION_LOG, new ExceptionLogHandler());
         if (channel < 0) {//login
             registerHandler(RecvOpcode.ACCEPT_TOS, new AcceptToSHandler());
             registerHandler(RecvOpcode.AFTER_LOGIN, new AfterLoginHandler());
@@ -90,19 +90,13 @@ public final class PacketProcessor {
             registerHandler(RecvOpcode.CHECK_CHAR_NAME, new CheckCharNameHandler());
             registerHandler(RecvOpcode.CREATE_CHAR, new CreateCharHandler());
             registerHandler(RecvOpcode.DELETE_CHAR, new DeleteCharHandler());
-            registerHandler(RecvOpcode.VIEW_ALL_CHAR, new ViewCharHandler());
-            registerHandler(RecvOpcode.PICK_ALL_CHAR, new PickCharHandler());
             registerHandler(RecvOpcode.REGISTER_PIN, new RegisterPinHandler());
             registerHandler(RecvOpcode.GUEST_LOGIN, new GuestLoginHandler());
-            registerHandler(RecvOpcode.REGISTER_PIC, new RegisterPicHandler());
-            registerHandler(RecvOpcode.CHAR_SELECT_WITH_PIC, new CharSelectedWithPicHandler());
             registerHandler(RecvOpcode.SET_GENDER, new SetGenderHandler());
-            registerHandler(RecvOpcode.VIEW_ALL_WITH_PIC, new ViewAllCharSelectedWithPicHandler());
-            registerHandler(RecvOpcode.VIEW_ALL_PIC_REGISTER, new ViewAllPicRegisterHandler());
         } else {
             //CHANNEL HANDLERS
             registerHandler(RecvOpcode.CHANGE_CHANNEL, new ChangeChannelHandler());
-            registerHandler(RecvOpcode.STRANGE_DATA, LoginRequiringNoOpHandler.getInstance());
+            registerHandler(RecvOpcode.SECURITY_PACKET, LoginRequiringNoOpHandler.getInstance());
             registerHandler(RecvOpcode.GENERAL_CHAT, new GeneralchatHandler());
             registerHandler(RecvOpcode.WHISPER, new WhisperHandler());
             registerHandler(RecvOpcode.NPC_TALK, new NPCTalkHandler());
@@ -144,7 +138,6 @@ public final class PacketProcessor {
             registerHandler(RecvOpcode.DENY_PARTY_REQUEST, new DenyPartyRequestHandler());
             registerHandler(RecvOpcode.PARTYCHAT, new PartyChatHandler());
             registerHandler(RecvOpcode.USE_DOOR, new DoorHandler());
-            registerHandler(RecvOpcode.ENTER_MTS, new EnterMTSHandler());
             registerHandler(RecvOpcode.ENTER_CASHSHOP, new EnterCashShopHandler());
             registerHandler(RecvOpcode.DAMAGE_SUMMON, new DamageSummonHandler());
             registerHandler(RecvOpcode.MOVE_SUMMON, new MoveSummonHandler());
@@ -156,7 +149,6 @@ public final class PacketProcessor {
             registerHandler(RecvOpcode.DAMAGE_REACTOR, new ReactorHitHandler());
             registerHandler(RecvOpcode.GUILD_OPERATION, new GuildOperationHandler());
             registerHandler(RecvOpcode.DENY_GUILD_REQUEST, new DenyGuildRequestHandler());
-            registerHandler(RecvOpcode.BBS_OPERATION, new BBSOperationHandler());
             registerHandler(RecvOpcode.SKILL_EFFECT, new SkillEffectHandler());
             registerHandler(RecvOpcode.MESSENGER, new MessengerHandler());
             registerHandler(RecvOpcode.NPC_ACTION, new NPCAnimation());
@@ -177,7 +169,6 @@ public final class PacketProcessor {
             registerHandler(RecvOpcode.NOTE_ACTION, new NoteActionHandler());
             registerHandler(RecvOpcode.CLOSE_CHALKBOARD, new CloseChalkboardHandler());
             registerHandler(RecvOpcode.USE_MOUNT_FOOD, new UseMountFoodHandler());
-            registerHandler(RecvOpcode.MTS_OPERATION, new MTSHandler());
             registerHandler(RecvOpcode.RING_ACTION, new RingActionHandler());
             registerHandler(RecvOpcode.SPOUSE_CHAT, new SpouseChatHandler());
             registerHandler(RecvOpcode.PET_AUTO_POT, new PetAutoPotHandler());
@@ -194,24 +185,18 @@ public final class PacketProcessor {
             registerHandler(RecvOpcode.USE_FAMILY, new FamilyUseHandler());
             registerHandler(RecvOpcode.USE_HAMMER, new UseHammerHandler());
             registerHandler(RecvOpcode.SCRIPTED_ITEM, new ScriptedItemHandler());
-            registerHandler(RecvOpcode.TOUCHING_REACTOR, new TouchReactorHandler());
             registerHandler(RecvOpcode.BEHOLDER, new BeholderHandler());
             registerHandler(RecvOpcode.ADMIN_COMMAND, new AdminCommandHandler());
             registerHandler(RecvOpcode.ADMIN_LOG, new AdminLogHandler());
             registerHandler(RecvOpcode.ALLIANCE_OPERATION, new AllianceOperationHandler());
-            registerHandler(RecvOpcode.USE_SOLOMON_ITEM, new UseSolomonHandler());
-            registerHandler(RecvOpcode.USE_GACHA_EXP, new UseGachaExpHandler());
             registerHandler(RecvOpcode.USE_ITEM_REWARD, new ItemRewardHandler());
             registerHandler(RecvOpcode.USE_REMOTE, new RemoteGachaponHandler());
             registerHandler(RecvOpcode.ACCEPT_FAMILY, new AcceptFamilyHandler());
             registerHandler(RecvOpcode.DUEY_ACTION, new DueyHandler());
             registerHandler(RecvOpcode.USE_DEATHITEM, new UseDeathItemHandler());
-            //registerHandler(RecvOpcode.PLAYER_UPDATE, new PlayerUpdateHandler());don't use unused stuff
-            registerHandler(RecvOpcode.USE_MAPLELIFE, new UseMapleLifeHandler());
             registerHandler(RecvOpcode.USE_CATCH_ITEM, new UseCatchItemHandler());
             registerHandler(RecvOpcode.MOB_DAMAGE_MOB_FRIENDLY, new MobDamageMobFriendlyHandler());
-            registerHandler(RecvOpcode.PARTY_SEARCH_REGISTER, new PartySearchRegisterHandler());
-            registerHandler(RecvOpcode.PARTY_SEARCH_START, new PartySearchStartHandler());
+            registerHandler(RecvOpcode.INVITE_PARTY_MATCH, new PartySearchStartHandler());
             registerHandler(RecvOpcode.ITEM_SORT2, new ItemIdSortHandler());
             registerHandler(RecvOpcode.LEFT_KNOCKBACK, new LeftKnockbackHandler());
             registerHandler(RecvOpcode.SNOWBALL, new SnowballHandler());

@@ -132,7 +132,7 @@ public class Server implements Runnable {
             System.exit(0);
         }
 
-        System.out.println("MoopleDEV v" + ServerConstants.VERSION + " starting up.\r\n");
+        System.out.println("MoopleEurope v" + ServerConstants.VERSION + " starting up.\r\n");
 
 
         Runtime.getRuntime().addShutdownHook(new Thread(shutdown(false)));

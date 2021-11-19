@@ -139,7 +139,7 @@ public class GMServer {
             synchronized (sss) {
                 final Iterator<IoSession> outIt = sss.iterator();
                 while (outIt.hasNext()) {
-                    outIt.next().close();
+                    outIt.next().close(true);
                     outIt.remove();
                 }
             }

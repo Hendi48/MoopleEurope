@@ -134,7 +134,7 @@ public class Commands {
                     victim = player.getMap().getCharacterByName(sub[1]);
                     if (victim != null) {
                         try {//sometimes bugged because the map = null
-                            victim.getClient().getSession().close();
+                            victim.getClient().getSession().close(true);
                             player.getMap().removePlayer(victim);
                         } catch (Exception e) {
                         }

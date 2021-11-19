@@ -65,8 +65,6 @@ public class PartyQuest {
         synchronized (participants) {
             participants.remove(chr);
             chr.setPartyQuest(null);
-            if (participants.isEmpty()) super.finalize();
-            //System.gc();
         }
     }
 }

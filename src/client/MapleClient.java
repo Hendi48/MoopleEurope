@@ -694,7 +694,7 @@ public class MapleClient {
         if (!serverTransition && isLoggedIn()) {
             updateLoginState(MapleClient.LOGIN_NOTLOGGEDIN);
             session.removeAttribute(MapleClient.CLIENT_KEY); // prevents double dcing during login
-            session.close();
+            session.close(true);
         }
         engines.clear();
     }

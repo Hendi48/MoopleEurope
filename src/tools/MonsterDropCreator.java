@@ -81,13 +81,13 @@ public class MonsterDropCreator {
 	FileOutputStream out = new FileOutputStream("mobDrop.sql", true);
 
 	// Things not in MonsterBook.img
-	for (Map.Entry e : getDropsNotInMonsterBook().entrySet()) {
+	for (Map.Entry<Integer, List<Integer>> e : getDropsNotInMonsterBook().entrySet()) {
 	    first = true;
 
 	    sb.append("INSERT INTO ").append(monsterQueryData).append(" VALUES ");
-	    for (Integer monsterdrop : (List<Integer>) e.getValue()) {
+	    for (Integer monsterdrop : e.getValue()) {
 		final int itemid = monsterdrop;
-		final int monsterId = (Integer) e.getKey();
+		final int monsterId = e.getKey();
 		int rate = getChance(itemid, monsterId, bossCache.containsKey(monsterId));
 
 		if (rate <= 100000) {
@@ -669,9 +669,9 @@ public class MonsterDropCreator {
     }
 
     private static Map<Integer, List<Integer>> getDropsNotInMonsterBook() {
-	Map<Integer, List<Integer>> drops = new HashMap<Integer, List<Integer>>();
+	Map<Integer, List<Integer>> drops = new HashMap<>();
 
-	List<Integer> IndiviualMonsterDrop = new ArrayList();
+	List<Integer> IndiviualMonsterDrop = new ArrayList<>();
 
 	// Bodyguard A
 	IndiviualMonsterDrop.add(4000139); // Bodyguard A's Tie Pin
@@ -683,7 +683,7 @@ public class MonsterDropCreator {
 
 	drops.put(9400112, IndiviualMonsterDrop);
 
-	IndiviualMonsterDrop = new ArrayList();
+	IndiviualMonsterDrop = new ArrayList<>();
 
 	// Bodyguard B
 	IndiviualMonsterDrop.add(4000140); // Bodyguard B's Bullet Shell
@@ -696,7 +696,7 @@ public class MonsterDropCreator {
 
 	drops.put(9400113, IndiviualMonsterDrop);
 
-	IndiviualMonsterDrop = new ArrayList();
+	IndiviualMonsterDrop = new ArrayList<>();
 
 	// The boss
 	IndiviualMonsterDrop.add(4000141); // Big Boss's flashlight
@@ -710,7 +710,7 @@ public class MonsterDropCreator {
 
 	drops.put(9400300, IndiviualMonsterDrop);
 
-	IndiviualMonsterDrop = new ArrayList();
+	IndiviualMonsterDrop = new ArrayList<>();
 
 	// Dreamy ghost, himes
 	IndiviualMonsterDrop.add(4000225); // Kimono Piece
@@ -734,14 +734,14 @@ public class MonsterDropCreator {
 
 	drops.put(9400013, IndiviualMonsterDrop);
 
-	IndiviualMonsterDrop = new ArrayList();
+	IndiviualMonsterDrop = new ArrayList<>();
 
 	// Zakum
 	IndiviualMonsterDrop.add(1372049); // Zakum Tree Branch
 
 	drops.put(8800002, IndiviualMonsterDrop);
 
-	IndiviualMonsterDrop = new ArrayList();
+	IndiviualMonsterDrop = new ArrayList<>();
 
 	// Horntail
 	IndiviualMonsterDrop.add(4001094); // Nine Spirit Egg
@@ -749,7 +749,7 @@ public class MonsterDropCreator {
 
 	drops.put(8810018, IndiviualMonsterDrop);
 
-	IndiviualMonsterDrop = new ArrayList();
+	IndiviualMonsterDrop = new ArrayList<>();
 
 	// Lady Boss
 	IndiviualMonsterDrop.add(4000138); // Lady Boss Comb
@@ -778,7 +778,7 @@ public class MonsterDropCreator {
 
 	drops.put(9400121, IndiviualMonsterDrop);
 
-	IndiviualMonsterDrop = new ArrayList();
+	IndiviualMonsterDrop = new ArrayList<>();
 
 	// Wolf Spider
 	IndiviualMonsterDrop.add(4032024); // Jumper Cable
@@ -814,7 +814,7 @@ public class MonsterDropCreator {
 
 	drops.put(9400545, IndiviualMonsterDrop);
 
-	IndiviualMonsterDrop = new ArrayList();
+	IndiviualMonsterDrop = new ArrayList<>();
 
 	return drops;
     }
@@ -822,7 +822,7 @@ public class MonsterDropCreator {
     private static void getAllItems() {
 	MapleDataProvider data = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/String.wz"));
 
-	List<Pair<Integer, String>> itemPairs = new ArrayList<Pair<Integer, String>>();
+	List<Pair<Integer, String>> itemPairs = new ArrayList<>();
 	MapleData itemsData;
 
 	itemsData = data.getData("Cash.img");
@@ -872,7 +872,7 @@ public class MonsterDropCreator {
     }
 
     public static void getAllMobs() {
-	List<Pair<Integer, MobInfo>> itemPairs = new ArrayList<Pair<Integer, MobInfo>>();
+	List<Pair<Integer, MobInfo>> itemPairs = new ArrayList<>();
 	MapleDataProvider data = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/String.wz"));
 	MapleDataProvider mobData = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/Mob.wz"));
 	MapleData mob = data.getData("Mob.img");

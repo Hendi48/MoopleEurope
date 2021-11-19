@@ -135,7 +135,7 @@ public class CashShop {
         private static final List<SpecialCashItem> specialcashitems = new ArrayList<>();
 
         static {
-            MapleDataProvider etc = MapleDataProviderFactory.getDataProvider(new File("wz/Etc.wz"));
+            MapleDataProvider etc = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/Etc.wz"));
 
             for (MapleData item : etc.getData("Commodity.img").getChildren()) {
                 int sn = MapleDataTool.getIntConvert("SN", item);

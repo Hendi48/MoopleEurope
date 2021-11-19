@@ -559,10 +559,6 @@ public class Server implements Runnable {
                     System.exit(0);
                 } else {
                     System.out.println("\r\nRestarting the server....\r\n");
-                    try {
-                        instance.finalize();//FUU I CAN AND IT'S FREE
-                    } catch (Throwable ex) {
-                    }
                     instance = null;
                     System.gc();
                     getInstance().run();//DID I DO EVERYTHING?! D:

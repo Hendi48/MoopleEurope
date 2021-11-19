@@ -46,7 +46,7 @@ public class ItemScriptManager {
 
     private ItemScriptManager() {
         ScriptEngineManager sem = new ScriptEngineManager();
-        sef = sem.getEngineByName("javascript").getFactory();
+        sef = sem.getEngineByName("rhino").getFactory();
     }
 
     public static ItemScriptManager getInstance() {

@@ -45,7 +45,7 @@ public class MapScriptManager {
 
     private MapScriptManager() {
         ScriptEngineManager sem = new ScriptEngineManager();
-        sef = sem.getEngineByName("javascript").getFactory();
+        sef = sem.getEngineByName("rhino").getFactory();
     }
 
     public static MapScriptManager getInstance() {

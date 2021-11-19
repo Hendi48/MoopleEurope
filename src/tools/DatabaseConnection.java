@@ -30,7 +30,7 @@ import java.sql.Statement;
 import java.util.HashMap;
 
 public class DatabaseConnection {
-    private static final HashMap<Integer, DatabaseConnection.ConWrapper> connections = new HashMap();
+    private static final HashMap<Integer, DatabaseConnection.ConWrapper> connections = new HashMap<>();
     private static boolean propsInited = false;
     private static long connectionTimeOut = 2 * 60 * 1000; // 2 minutes
     public static final int RETURN_GENERATED_KEYS = 1;

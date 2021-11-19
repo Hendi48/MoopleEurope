@@ -917,7 +917,7 @@ public class MapleItemInformationProvider {
             return rewardCache.get(itemId);
         }
         int totalprob = 0;
-        List<RewardItem> rewards = new ArrayList();
+        List<RewardItem> rewards = new ArrayList<>();
         for (MapleData child : getItemData(itemId).getChildByPath("reward").getChildren()) {
             RewardItem reward = new RewardItem();
             reward.itemid = MapleDataTool.getInt("item", child, 0);
@@ -931,7 +931,7 @@ public class MapleItemInformationProvider {
 
             rewards.add(reward);
         }
-        Pair<Integer, List<RewardItem>> hmm = new Pair(totalprob, rewards);
+        Pair<Integer, List<RewardItem>> hmm = new Pair<>(totalprob, rewards);
         rewardCache.put(itemId, hmm);
         return hmm;
     }

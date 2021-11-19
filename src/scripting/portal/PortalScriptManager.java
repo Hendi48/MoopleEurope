@@ -45,7 +45,7 @@ public class PortalScriptManager {
 
     private PortalScriptManager() {
         ScriptEngineManager sem = new ScriptEngineManager();
-        sef = sem.getEngineByName("javascript").getFactory();
+        sef = sem.getEngineByName("rhino").getFactory();
     }
 
     public static PortalScriptManager getInstance() {

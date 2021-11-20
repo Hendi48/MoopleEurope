@@ -146,6 +146,7 @@ public class Server implements Runnable {
             ps.executeUpdate();
             ps.close();
         } catch (SQLException sqle) {
+            sqle.printStackTrace();
         }
         IoBuffer.setUseDirectBuffer(false);
         IoBuffer.setAllocator(new SimpleBufferAllocator());
@@ -156,17 +157,13 @@ public class Server implements Runnable {
         tMan.register(tMan.purge(), 300000);//Purging ftw...
         tMan.register(new RankingWorker(), ServerConstants.RANKING_INTERVAL);
 
-        long timeToTake = System.currentTimeMillis();
-        System.out.println("Loading Skills");
+        System.out.println("Loading skills...");
         SkillFactory.loadAllSkills();
-        System.out.println("Skills loaded in " + ((System.currentTimeMillis() - timeToTake) / 1000.0) + " seconds");
 
-        timeToTake = System.currentTimeMillis();
-        System.out.println("Loading Items");
-        MapleItemInformationProvider.getInstance().getAllItems();
-
+        System.out.println("Loading items...");
+        MapleItemInformationProvider.getInstance().getAllItems(); // note: this is pretty pointless since it doesn't really cache anything, except perhaps at OS level
         CashItemFactory.getSpecialCashItems();
-        System.out.println("Items loaded in " + ((System.currentTimeMillis() - timeToTake) / 1000.0) + " seconds");
+
         try {
             for (int i = 0; i < Integer.parseInt(p.getProperty("worlds")); i++) {
                 System.out.println("Starting world " + i);
@@ -180,7 +177,7 @@ public class Server implements Runnable {
 
                 worldRecommendedList.add(new Pair<>(i, p.getProperty("whyamirecommended" + i)));
                 worlds.add(world);
-                channels.add(new LinkedHashMap<Integer, String>());
+                channels.add(new LinkedHashMap<>());
                 for (int j = 0; j < Integer.parseInt(p.getProperty("channels" + i)); j++) {
                     int channelid = j + 1;
                     Channel channel = new Channel(i, channelid);

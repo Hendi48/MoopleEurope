@@ -28,35 +28,36 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import tools.data.input.GenericSeekableLittleEndianAccessor;
-import tools.data.input.RandomAccessByteStream;
+import tools.data.input.MappedByteStream;
 import tools.data.input.SeekableLittleEndianAccessor;
 
 public class WZIMGFile {
-    private WZFileEntry file;
-    private WZIMGEntry root;
-    private boolean provideImages;
+
+    private final WZFileEntry file;
+    private final WZIMGEntry root;
+    private final boolean provideImages;
     @SuppressWarnings ("unused")
-    private boolean modernImg;
+    private final boolean modernImg;
 
     public WZIMGFile(File wzfile, WZFileEntry file, boolean provideImages, boolean modernImg) throws IOException {
-        RandomAccessFile raf = new RandomAccessFile(wzfile, "r");
-        SeekableLittleEndianAccessor slea = new GenericSeekableLittleEndianAccessor(new RandomAccessByteStream(raf));
-        slea.seek(file.getOffset());
-        this.file = file;
-        this.provideImages = provideImages;
-        root = new WZIMGEntry(file.getParent());
-        root.setName(file.getName());
-        root.setType(MapleDataType.EXTENDED);
-        this.modernImg = modernImg;
-        parseExtended(root, slea, 0);
-        root.finish();
-        raf.close();
+        try (RandomAccessFile raf = new RandomAccessFile(wzfile, "r")) {
+            MappedByteStream mbs = new MappedByteStream(raf, file.getOffset(), file.getSize());
+            SeekableLittleEndianAccessor slea = new GenericSeekableLittleEndianAccessor(mbs);
+            this.file = file;
+            this.provideImages = provideImages;
+            root = new WZIMGEntry(file.getParent());
+            root.setName(file.getName());
+            root.setType(MapleDataType.EXTENDED);
+            this.modernImg = modernImg;
+            parseExtended(root, slea, 0);
+            root.finish();
+        }
     }
 
     protected void dumpImg(OutputStream out, SeekableLittleEndianAccessor slea) throws IOException {
         DataOutputStream os = new DataOutputStream(out);
         long oldPos = slea.getPosition();
-        slea.seek(file.getOffset());
+        slea.seek(0);
         for (int x = 0; x < file.getSize(); x++) {
             os.write(slea.readByte());
         }
@@ -76,12 +77,12 @@ public class WZIMGFile {
                 break;
             }
             case 1: {
-                String name = WZTool.readDecodedStringAtOffsetAndReset(slea, file.getOffset() + slea.readInt());
+                String name = WZTool.readDecodedStringAtOffsetAndReset(slea, slea.readInt());
                 entry.setName(name);
                 break;
             }
             default:
-                System.out.println("Unknown Image identifier: " + marker + " at offset " + (slea.getPosition() - file.getOffset()));
+                System.out.println("Unknown Image identifier: " + marker + " at offset " + slea.getPosition());
         }
         marker = slea.readByte();
         switch (marker) {
@@ -111,7 +112,7 @@ public class WZIMGFile {
                 if (iMarker == 0) {
                     entry.setData(WZTool.readDecodedString(slea));
                 } else if (iMarker == 1) {
-                    entry.setData(WZTool.readDecodedStringAtOffsetAndReset(slea, slea.readInt() + file.getOffset()));
+                    entry.setData(WZTool.readDecodedStringAtOffsetAndReset(slea, slea.readInt()));
                 } else {
                     System.out.println("Unknown String type " + iMarker);
                 }
@@ -135,11 +136,11 @@ public class WZIMGFile {
                 type = WZTool.readDecodedString(slea);
                 break;
             case 0x1B:
-                type = WZTool.readDecodedStringAtOffsetAndReset(slea, file.getOffset() + slea.readInt());
+                type = WZTool.readDecodedStringAtOffsetAndReset(slea, slea.readInt());
                 break;
             default:
                 throw new RuntimeException("Unknown extended image identifier: " + marker + " at offset " +
-                        (slea.getPosition() - file.getOffset()));
+                        slea.getPosition());
         }
         if (type.equals("Property")) {
             entry.setType(MapleDataType.PROPERTY);
@@ -204,7 +205,7 @@ public class WZIMGFile {
             int dataLength = WZTool.readValue(slea);
             WZTool.readValue(slea); // no clue what this is
             int offset = (int) slea.getPosition();
-            entry.setData(new ImgMapleSound(dataLength, offset - file.getOffset()));
+            entry.setData(new ImgMapleSound(dataLength, offset));
             slea.seek(endOfExtendedBlock);
         } else if (type.equals("UOL")) {
             entry.setType(MapleDataType.UOL);
@@ -215,7 +216,7 @@ public class WZIMGFile {
                     entry.setData(WZTool.readDecodedString(slea));
                     break;
                 case 1:
-                    entry.setData(WZTool.readDecodedStringAtOffsetAndReset(slea, file.getOffset() + slea.readInt()));
+                    entry.setData(WZTool.readDecodedStringAtOffsetAndReset(slea, slea.readInt()));
                     break;
                 default:
                     System.out.println("Unknown UOL marker: " + uolmarker + " " + entry.getName());

@@ -377,13 +377,13 @@ public class AbstractPlayerInteraction {
         c.announce(MaplePacketCreator.guideHint(hint));
     }
 
-    public void updateAreaInfo(Short area, String info) {
-        c.getPlayer().updateAreaInfo(area, info);
+    public void updateAreaInfo(int questId, String data) {
+        c.getPlayer().updateQuestEx(questId, data);
         c.announce(MaplePacketCreator.enableActions());//idk, nexon does the same :P
     }
 
-    public boolean containsAreaInfo(short area, String info) {
-        return c.getPlayer().containsAreaInfo(area, info);
+    public boolean containsAreaInfo(int questId, String data) {
+        return c.getPlayer().containsQuestEx(questId, data);
     }
 
     public MobSkill getMobSkill(int skill, int level) {

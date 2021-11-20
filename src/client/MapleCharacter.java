@@ -236,7 +236,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
     private long portaldelay = 0, lastcombo = 0;
     private short combocounter = 0;
     private List<String> blockedPortals = new ArrayList<>();
-    private Map<Short, String> area_info = new LinkedHashMap<>();
+    private final Map<Integer, String> questEx = new LinkedHashMap<>();
     private AutobanManager autoban;
     private boolean isbanned = false;
     private ScheduledFuture<?> pendantOfSpirit = null; //1122017
@@ -2634,11 +2634,11 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             }
             rs.close();
             ps.close();
-            ps = con.prepareStatement("SELECT `area`,`info` FROM area_info WHERE charid = ?");
+            ps = con.prepareStatement("SELECT `questid`,`data` FROM questex WHERE characterid = ?");
             ps.setInt(1, ret.id);
             rs = ps.executeQuery();
             while (rs.next()) {
-                ret.area_info.put(rs.getShort("area"), rs.getString("info"));
+                ret.questEx.put(rs.getInt("questid"), rs.getString("data"));
             }
             rs.close();
             ps.close();
@@ -3437,7 +3437,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             con.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
             con.setAutoCommit(false);
             PreparedStatement ps;
-            ps = con.prepareStatement("UPDATE characters SET level = ?, fame = ?, str = ?, dex = ?, luk = ?, `int` = ?, exp = ?, gachaexp = ?, hp = ?, mp = ?, maxhp = ?, maxmp = ?, sp = ?, ap = ?, gm = ?, skincolor = ?, gender = ?, job = ?, hair = ?, face = ?, map = ?, meso = ?, hpMpUsed = ?, spawnpoint = ?, party = ?, buddyCapacity = ?, messengerid = ?, messengerposition = ?, mountlevel = ?, mountexp = ?, mounttiredness= ?, equipslots = ?, useslots = ?, setupslots = ?, etcslots = ?,  monsterbookcover = ?, vanquisherStage = ?, dojoPoints = ?, lastDojoStage = ?, finishedDojoTutorial = ?, vanquisherKills = ?, matchcardwins = ?, matchcardlosses = ?, matchcardties = ?, omokwins = ?, omoklosses = ?, omokties = ? WHERE id = ?", Statement.RETURN_GENERATED_KEYS);
+            ps = con.prepareStatement("UPDATE characters SET level = ?, fame = ?, str = ?, dex = ?, luk = ?, `int` = ?, exp = ?, hp = ?, mp = ?, maxhp = ?, maxmp = ?, sp = ?, ap = ?, gm = ?, skincolor = ?, gender = ?, job = ?, hair = ?, face = ?, map = ?, meso = ?, hpMpUsed = ?, spawnpoint = ?, party = ?, buddyCapacity = ?, messengerid = ?, messengerposition = ?, mountlevel = ?, mountexp = ?, mounttiredness= ?, equipslots = ?, useslots = ?, setupslots = ?, etcslots = ?,  monsterbookcover = ?, vanquisherStage = ?, dojoPoints = ?, lastDojoStage = ?, finishedDojoTutorial = ?, vanquisherKills = ?, matchcardwins = ?, matchcardlosses = ?, matchcardties = ?, omokwins = ?, omoklosses = ?, omokties = ? WHERE id = ?", Statement.RETURN_GENERATED_KEYS);
             if (gmLevel < 1 && level > 199) {
                 ps.setInt(1, isCygnus() ? 120 : 200);
             } else {
@@ -3449,81 +3449,80 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             ps.setInt(5, luk);
             ps.setInt(6, int_);
             ps.setInt(7, Math.abs(exp.get()));
-            ps.setInt(8, 0);
-            ps.setInt(9, hp);
-            ps.setInt(10, mp);
-            ps.setInt(11, maxhp);
-            ps.setInt(12, maxmp);
-            ps.setInt(13, remainingSp);
-            ps.setInt(14, remainingAp);
-            ps.setInt(15, gmLevel);
-            ps.setInt(16, skinColor.getId());
-            ps.setInt(17, gender);
-            ps.setInt(18, job.getId());
-            ps.setInt(19, hair);
-            ps.setInt(20, face);
+            ps.setInt(8, hp);
+            ps.setInt(9, mp);
+            ps.setInt(10, maxhp);
+            ps.setInt(11, maxmp);
+            ps.setInt(12, remainingSp);
+            ps.setInt(13, remainingAp);
+            ps.setInt(14, gmLevel);
+            ps.setInt(15, skinColor.getId());
+            ps.setInt(16, gender);
+            ps.setInt(17, job.getId());
+            ps.setInt(18, hair);
+            ps.setInt(19, face);
             if (map == null || (cashshop != null && cashshop.isOpened())) {
-                ps.setInt(21, mapid);
+                ps.setInt(20, mapid);
             } else {
                 if (map.getForcedReturnId() != 999999999) {
-                    ps.setInt(21, map.getForcedReturnId());
+                    ps.setInt(20, map.getForcedReturnId());
                 } else {
-                    ps.setInt(21, getHp() < 1 ? map.getReturnMapId() : map.getId());
+                    ps.setInt(20, getHp() < 1 ? map.getReturnMapId() : map.getId());
                 }
             }
-            ps.setInt(22, meso.get());
-            ps.setInt(23, hpMpApUsed);
+            ps.setInt(21, meso.get());
+            ps.setInt(22, hpMpApUsed);
             if (map == null || map.getId() == 610020000 || map.getId() == 610020001) {
-                ps.setInt(24, 0);
+                ps.setInt(23, 0);
             } else {
                 MaplePortal closest = map.findClosestSpawnpoint(getPosition());
                 if (closest != null) {
-                    ps.setInt(24, closest.getId());
+                    ps.setInt(23, closest.getId());
                 } else {
-                    ps.setInt(24, 0);
+                    ps.setInt(23, 0);
                 }
             }
             if (party != null) {
-                ps.setInt(25, party.getId());
+                ps.setInt(24, party.getId());
             } else {
-                ps.setInt(25, -1);
+                ps.setInt(24, -1);
             }
-            ps.setInt(26, buddylist.getCapacity());
+            ps.setInt(25, buddylist.getCapacity());
             if (messenger != null) {
-                ps.setInt(27, messenger.getId());
-                ps.setInt(28, messengerposition);
+                ps.setInt(26, messenger.getId());
+                ps.setInt(27, messengerposition);
             } else {
-                ps.setInt(27, 0);
-                ps.setInt(28, 4);
+                ps.setInt(26, 0);
+                ps.setInt(27, 4);
             }
             if (maplemount != null) {
-                ps.setInt(29, maplemount.getLevel());
-                ps.setInt(30, maplemount.getExp());
-                ps.setInt(31, maplemount.getTiredness());
+                ps.setInt(28, maplemount.getLevel());
+                ps.setInt(29, maplemount.getExp());
+                ps.setInt(30, maplemount.getTiredness());
             } else {
-                ps.setInt(29, 1);
+                ps.setInt(28, 1);
+                ps.setInt(29, 0);
                 ps.setInt(30, 0);
-                ps.setInt(31, 0);
             }
             for (int i = 1; i < 5; i++) {
-                ps.setInt(i + 31, getSlots(i));
+                ps.setInt(i + 30, getSlots(i));
             }
 
             monsterbook.saveCards(getId());
 
-            ps.setInt(36, bookCover);
-            ps.setInt(37, vanquisherStage);
-            ps.setInt(38, dojoPoints);
-            ps.setInt(39, dojoStage);
-            ps.setInt(40, finishedDojoTutorial ? 1 : 0);
-            ps.setInt(41, vanquisherKills);
-            ps.setInt(42, matchcardwins);
-            ps.setInt(43, matchcardlosses);
-            ps.setInt(44, matchcardties);
-            ps.setInt(45, omokwins);
-            ps.setInt(46, omoklosses);
-            ps.setInt(47, omokties);
-            ps.setInt(48, id);
+            ps.setInt(35, bookCover);
+            ps.setInt(36, vanquisherStage);
+            ps.setInt(37, dojoPoints);
+            ps.setInt(38, dojoStage);
+            ps.setInt(39, finishedDojoTutorial ? 1 : 0);
+            ps.setInt(40, vanquisherKills);
+            ps.setInt(41, matchcardwins);
+            ps.setInt(42, matchcardlosses);
+            ps.setInt(43, matchcardties);
+            ps.setInt(44, omokwins);
+            ps.setInt(45, omoklosses);
+            ps.setInt(46, omokties);
+            ps.setInt(47, id);
 
             int updateRows = ps.executeUpdate();
             if (updateRows < 1) {
@@ -3622,12 +3621,12 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
                 }
             }
             ps.executeBatch();
-            deleteWhereCharacterId(con, "DELETE FROM area_info WHERE charid = ?");
-            ps = con.prepareStatement("INSERT INTO area_info (id, charid, area, info) VALUES (DEFAULT, ?, ?, ?)");
+            deleteWhereCharacterId(con, "DELETE FROM questex WHERE characterid = ?");
+            ps = con.prepareStatement("INSERT INTO questex (characterid, questid, data) VALUES (?, ?, ?)");
             ps.setInt(1, id);
-            for (Entry<Short, String> area : area_info.entrySet()) {
-                ps.setInt(2, area.getKey());
-                ps.setString(3, area.getValue());
+            for (var ex : questEx.entrySet()) {
+                ps.setInt(2, ex.getKey());
+                ps.setString(3, ex.getValue());
                 ps.addBatch();
             }
             ps.executeBatch();
@@ -4484,25 +4483,24 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         return blockedPortals;
     }
 
-    public boolean containsAreaInfo(int area, String info) {
-        Short area_ = Short.valueOf((short) area);
-        if (area_info.containsKey(area_)) {
-            return area_info.get(area_).contains(info);
+    public boolean containsQuestEx(int questId, String data) {
+        if (questEx.containsKey(questId)) {
+            return questEx.get(questId).contains(data);
         }
         return false;
     }
 
-    public void updateAreaInfo(int area, String info) {
-        area_info.put(Short.valueOf((short) area), info);
-        announce(MaplePacketCreator.updateAreaInfo(area, info));
+    public void updateQuestEx(int questId, String data) {
+        questEx.put(questId, data);
+        announce(MaplePacketCreator.updateQuestEx(questId, data));
     }
 
-    public String getAreaInfo(int area) {
-        return area_info.get(Short.valueOf((short) area));
+    public String getQuestEx(int questId) {
+        return questEx.get(questId);
     }
 
-    public Map<Short, String> getAreaInfos() {
-        return area_info;
+    public Map<Integer, String> getQuestEx() {
+        return questEx;
     }
 
     public void autoban(String reason, int greason) {

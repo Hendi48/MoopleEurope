@@ -188,7 +188,7 @@ public class MaplePacketCreator {
         addRingInfo(mplew, chr);
         addTeleportInfo(mplew, chr);
         //addMonsterBookInfo(mplew, chr);
-        addAreaInfo(mplew, chr);//assuming it stayed here xd
+        addQuestEx(mplew, chr);
         mplew.writeShort(0);
         addNewYearInfo(mplew, chr);//have fun!
     }
@@ -236,12 +236,12 @@ public class MaplePacketCreator {
          }*/
     }
 
-    private static void addAreaInfo(final MaplePacketLittleEndianWriter mplew, MapleCharacter chr) {
-        Map<Short, String> areaInfos = chr.getAreaInfos();
-        mplew.writeShort(areaInfos.size());
-        for (Short area : areaInfos.keySet()) {
-            mplew.writeShort(area);
-            mplew.writeMapleAsciiString(areaInfos.get(area));
+    private static void addQuestEx(final MaplePacketLittleEndianWriter mplew, MapleCharacter chr) {
+        Map<Integer, String> questEx = chr.getQuestEx();
+        mplew.writeShort(questEx.size());
+        for (var ex : questEx.entrySet()) {
+            mplew.writeShort(ex.getKey());
+            mplew.writeMapleAsciiString(ex.getValue());
         }
     }
 
@@ -5010,12 +5010,12 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static byte[] updateAreaInfo(int area, String info) {
+    public static byte[] updateQuestEx(int questId, String data) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
         mplew.write(0x0A); //0x0B in v95
-        mplew.writeShort(area);//infoNumber
-        mplew.writeMapleAsciiString(info);
+        mplew.writeShort(questId);
+        mplew.writeMapleAsciiString(data);
         return mplew.getPacket();
     }
 

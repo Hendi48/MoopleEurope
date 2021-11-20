@@ -119,23 +119,6 @@ CREATE TABLE `buddies` (
 -- ----------------------------
 
 -- ----------------------------
--- Table structure for `area_info`
--- ----------------------------
-DROP TABLE IF EXISTS `area_info`;
-CREATE TABLE `area_info` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `charid` int(11) NOT NULL,
-  `area` int(11) NOT NULL,
-  `info` varchar(120) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `cid` (`charid`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- ----------------------------
--- Records of char_area_info
--- ----------------------------
-
--- ----------------------------
 -- Table structure for `characters`
 -- ----------------------------
 DROP TABLE IF EXISTS `characters`;
@@ -146,7 +129,6 @@ CREATE TABLE `characters` (
   `name` varchar(13) NOT NULL DEFAULT '',
   `level` int(11) NOT NULL DEFAULT '1',
   `exp` int(11) NOT NULL DEFAULT '0',
-  `gachaexp` int(11) NOT NULL DEFAULT '0',
   `str` int(11) NOT NULL DEFAULT '12',
   `dex` int(11) NOT NULL DEFAULT '5',
   `luk` int(11) NOT NULL DEFAULT '4',
@@ -15292,6 +15274,24 @@ CREATE TABLE `questactions` (
 
 -- ----------------------------
 -- Records of questactions
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for `questex`
+-- ----------------------------
+DROP TABLE IF EXISTS `questex`;
+CREATE TABLE `questex` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `characterid` int(11) NOT NULL,
+  `questid` int(11) NOT NULL,
+  `data` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `questex_ibfk_1` (`characterid`),
+  CONSTRAINT `questex_ibfk_1` FOREIGN KEY (`characterid`) REFERENCES `characters` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+-- Records of questex
 -- ----------------------------
 
 -- ----------------------------

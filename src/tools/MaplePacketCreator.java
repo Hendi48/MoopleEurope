@@ -1366,7 +1366,7 @@ public class MaplePacketCreator {
      *
      * @param cidfrom The character ID who sent the chat.
      * @param text The text of the chat.
-     * @param whiteBG
+     * @param gm
      * @param show
      * @return The general chat packet.
      */
@@ -1384,6 +1384,7 @@ public class MaplePacketCreator {
      * Gets a packet telling the client to show an EXP increase.
      *
      * @param gain The amount of EXP gained.
+     * @param equip Equip bonus exp
      * @param inChat In the chat box?
      * @param white White text or yellow?
      * @return The exp gained packet.
@@ -1395,17 +1396,21 @@ public class MaplePacketCreator {
         mplew.writeBool(white);
         mplew.writeInt(gain);
         mplew.writeBool(inChat);
-        mplew.writeInt(0); // monster book bonus (Bonus Event Exp)
-        mplew.writeShort(0); //Weird stuff
-        mplew.writeInt(0); //wedding bonus
-        mplew.write(0); //0 = party bonus, 1 = Bonus Event party Exp () x0
-        mplew.writeInt(0); // party bonus
-        mplew.writeInt(equip); //equip bonus
-        mplew.writeInt(0); //Internet Cafe Bonus
-        mplew.writeInt(0); //Rainbow Week Bonus
+        mplew.writeInt(0); // Bonus Event Exp
+        mplew.write(0); // Hunting over hrs rate
+        mplew.write(0); // unused
+        mplew.writeInt(0); // wedding bonus
+        mplew.writeInt(0); // party ring bonus
+        // if "Hunting over hrs rate" > 0: write byte for number of hrs
         if (inChat) {
-            mplew.write(0);
+            mplew.write(0); // Everyday Event
+            // if > 0: additional byte
         }
+        mplew.write(0); // 0 = party bonus, 1 = Bonus Event party Exp () x0
+        mplew.writeInt(0); // party bonus
+        mplew.writeInt(equip); // equip bonus
+        mplew.writeInt(0); // Internet Cafe Bonus
+        mplew.writeInt(0); // Rainbow Week Bonus
         return mplew.getPacket();
     }
 
@@ -1445,12 +1450,14 @@ public class MaplePacketCreator {
         mplew.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
         if (!inChat) {
             mplew.write(0);
-            mplew.writeShort(1); //v83
+            mplew.writeBool(true); // bMesos
+            mplew.writeBool(false); // part dropped on the floor
+            mplew.writeInt(gain);
+            mplew.writeShort(0); // Internet Cafe Bonus
         } else {
             mplew.write(5);
+            mplew.writeInt(gain);
         }
-        mplew.writeInt(gain);
-        mplew.writeShort(0);
         return mplew.getPacket();
     }
 
@@ -1478,16 +1485,15 @@ public class MaplePacketCreator {
         if (inChat) {
             mplew.writeShort(SendOpcode.SHOW_ITEM_GAIN_INCHAT.getValue());
             mplew.write(3);
-            mplew.write(1);
+            mplew.write(1); // count
             mplew.writeInt(itemId);
             mplew.writeInt(quantity);
         } else {
             mplew.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
-            mplew.writeShort(0);
+            mplew.write(0);
+            mplew.writeBool(false); // bMesos
             mplew.writeInt(itemId);
             mplew.writeInt(quantity);
-            mplew.writeInt(0);
-            mplew.writeInt(0);
         }
         return mplew.getPacket();
     }

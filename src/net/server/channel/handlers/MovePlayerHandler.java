@@ -21,7 +21,6 @@
 */
 package net.server.channel.handlers;
 
-import net.server.channel.handlers.AbstractMovementPacketHandler;
 import java.util.List;
 import client.MapleClient;
 import server.movement.LifeMovementFragment;
@@ -29,8 +28,17 @@ import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 
 public final class MovePlayerHandler extends AbstractMovementPacketHandler {
+
+    @Override
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        slea.skip(9);
+        slea.skip(8); // dr0, dr1
+        slea.readByte(); // field key
+        slea.skip(8); // dr2, dr3
+        slea.readInt(); // field crc
+        slea.readInt(); // random
+        slea.readInt(); // crc of previous int
+        slea.readShort(); // movepath x
+        slea.readShort(); // movepath y
         final List<LifeMovementFragment> res = parseMovement(slea);
         if (res != null) {
             updatePosition(res, c.getPlayer(), 0);
@@ -39,7 +47,7 @@ public final class MovePlayerHandler extends AbstractMovementPacketHandler {
                 c.getPlayer().getMap().broadcastGMMessage(c.getPlayer(), MaplePacketCreator.movePlayer(c.getPlayer().getId(), res), false);
             } else {
                 c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.movePlayer(c.getPlayer().getId(), res), false);
-            }            
+            }
         }
     }
 }

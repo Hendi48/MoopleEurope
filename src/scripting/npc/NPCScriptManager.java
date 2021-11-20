@@ -55,10 +55,10 @@ public class NPCScriptManager extends AbstractScriptManager {
             cms.put(c, cm);
             Invocable iv = null;
             if (filename != null) {
-                iv = getInvocable("npc/world" + c.getWorld() + "/" + filename + ".js", c);
+                iv = getInvocable("npc/" + filename + ".js", c);
             }
             if (iv == null) {
-                iv = getInvocable("npc/world" + c.getWorld() + "/" + npc + ".js", c);
+                iv = getInvocable("npc/" + npc + ".js", c);
             }
             if (iv == null || NPCScriptManager.getInstance() == null) {
                 dispose(c);
@@ -105,7 +105,7 @@ public class NPCScriptManager extends AbstractScriptManager {
         MapleClient c = cm.getClient();
         cms.remove(c);
         scripts.remove(c);
-        resetContext("npc/world" + c.getWorld() + "/" + cm.getNpc() + ".js", c);
+        resetContext("npc/" + cm.getNpc() + ".js", c);
     }
 
     public void dispose(MapleClient c) {

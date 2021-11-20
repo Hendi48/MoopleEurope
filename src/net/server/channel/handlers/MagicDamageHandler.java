@@ -21,7 +21,6 @@
 */
 package net.server.channel.handlers;
 
-import net.server.channel.handlers.AbstractDealDamageHandler;
 import client.MapleCharacter;
 import client.MapleCharacter.CancelCooldownAction;
 import client.MapleClient;
@@ -33,14 +32,12 @@ import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 
 public final class MagicDamageHandler extends AbstractDealDamageHandler {
+
     @Override
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         AttackInfo attack = parseDamage(slea, player, false);
-        byte[] packet = MaplePacketCreator.magicAttack(player, attack.skill, attack.skilllevel, attack.stance, attack.numAttackedAndDamage, attack.allDamage, -1, attack.speed, attack.direction, attack.display);
-        if (attack.skill == 2121001 || attack.skill == 2221001 || attack.skill == 2321001) {
-            packet = MaplePacketCreator.magicAttack(player, attack.skill, attack.skilllevel, attack.stance, attack.numAttackedAndDamage, attack.allDamage, attack.charge, attack.speed, attack.direction, attack.display);
-        }
+        byte[] packet = MaplePacketCreator.magicAttack(player, attack);
         player.getMap().broadcastMessage(player, packet, false, true);
         MapleStatEffect effect = attack.getAttackEffect(player, null);
         Skill skill = SkillFactory.getSkill(attack.skill);

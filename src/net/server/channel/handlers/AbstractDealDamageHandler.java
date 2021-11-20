@@ -43,10 +43,12 @@ import constants.skills.ChiefBandit;
 import constants.skills.Cleric;
 import constants.skills.Corsair;
 import constants.skills.Crossbowman;
+import constants.skills.DarkKnight;
 import constants.skills.DawnWarrior;
 import constants.skills.FPArchMage;
 import constants.skills.Fighter;
 import constants.skills.Gunslinger;
+import constants.skills.Hero;
 import constants.skills.Hunter;
 import constants.skills.ILArchMage;
 import constants.skills.Marauder;
@@ -89,7 +91,7 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
 
     public static class AttackInfo {
 
-        public int numAttacked, numDamage, numAttackedAndDamage, skill, skilllevel, stance, direction, rangedirection, charge, display;
+        public int numAttacked, numDamage, numAttackedAndDamage, skill, skilllevel, actionAndDir, charge, option;
         public Map<Integer, List<Integer>> allDamage;
         public boolean isHH = false;
         public int speed = 4;
@@ -109,12 +111,6 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
             }
             if (skillLevel == 0) {
                 return null;
-            }
-            if (display > 80) { //Hmm
-                if (!theSkill.getAction()) {
-                    AutobanFactory.FAST_ATTACK.autoban(chr, "WZ Edit; adding action to a skill: " + display);
-                    return null;
-                }
             }
             return mySkill.getEffect(skillLevel);
         }
@@ -336,28 +332,56 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
 
     protected AttackInfo parseDamage(LittleEndianAccessor lea, MapleCharacter chr, boolean ranged) {
         AttackInfo ret = new AttackInfo();
-        lea.readByte();
+        lea.readByte(); // field key
+
+        lea.readInt(); // dr0
+        lea.readInt(); // dr1
+
         ret.numAttackedAndDamage = lea.readByte();
         ret.numAttacked = (ret.numAttackedAndDamage >>> 4) & 0xF;
         ret.numDamage = ret.numAttackedAndDamage & 0xF;
         ret.allDamage = new HashMap<>();
+
+        lea.readInt(); // dr2
+        lea.readInt(); // dr3
+
         ret.skill = lea.readInt();
         if (ret.skill > 0) {
             ret.skilllevel = chr.getSkillLevel(ret.skill);
         }
-        if (ret.skill == FPArchMage.BIG_BANG || ret.skill == ILArchMage.BIG_BANG || ret.skill == Bishop.BIG_BANG || ret.skill == Gunslinger.GRENADE || ret.skill == Brawler.CORKSCREW_BLOW || ret.skill == ThunderBreaker.CORKSCREW_BLOW || ret.skill == NightWalker.POISON_BOMB) {
-            ret.charge = lea.readInt();
-        } else {
-            ret.charge = 0;
+
+        lea.readInt(); // random
+        lea.readInt(); // crc of dr detection
+
+        lea.readInt(); // skill crc
+        switch (ret.skill) {
+            case Hero.MONSTER_MAGNET:
+            case Paladin.MONSTER_MAGNET:
+            case DarkKnight.MONSTER_MAGNET:
+            case FPArchMage.BIG_BANG:
+            case ILArchMage.BIG_BANG:
+            case Bishop.BIG_BANG:
+            case Bowmaster.HURRICANE:
+            case Marksman.PIERCING_ARROW:
+            case Brawler.CORKSCREW_BLOW:
+            case Gunslinger.GRENADE:
+            case Corsair.RAPID_FIRE:
+            case WindArcher.HURRICANE:
+            case NightWalker.POISON_BOMB:
+            case ThunderBreaker.CORKSCREW_BLOW:
+                ret.charge = lea.readInt();
+                break;
+            default:
+                ret.charge = -1;
         }
         if (ret.skill == Paladin.HEAVENS_HAMMER) {
             ret.isHH = true;
         }
-        lea.skip(8);
-        ret.display = lea.readByte();
-        ret.direction = lea.readByte();
-        ret.stance = lea.readByte();
+        ret.option = lea.readByte();
+        ret.actionAndDir = lea.readShort();
+
         if (ret.skill == ChiefBandit.MESO_EXPLOSION) {
+            // TODO fix this utter mess
             if (ret.numAttackedAndDamage == 0) {
                 lea.skip(10);
                 int bullets = lea.readByte();
@@ -393,20 +417,22 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
             }
             return ret;
         }
+
+        lea.readByte(); // nAttackActionType
+        ret.speed = lea.readByte();
+        lea.readInt(); // tAttackTime
+
         if (ranged) {
-            lea.readByte();
-            ret.speed = lea.readByte();
-            lea.readByte();
-            ret.rangedirection = lea.readByte();
-            lea.skip(7);
-            if (ret.skill == Bowmaster.HURRICANE || ret.skill == Marksman.PIERCING_ARROW || ret.skill == Corsair.RAPID_FIRE || ret.skill == WindArcher.HURRICANE) {
-                lea.skip(4);
+            lea.readShort(); // projectile slot
+            lea.readShort(); // cash projectile slot
+            lea.readByte(); // nShootRange0a
+            if ((ret.option & 0x40) > 0) { // Spirit Javelin
+                if (ret.skill != 4111004 && ret.skill != 4121003 && ret.skill != 4221003) {
+                    lea.readInt(); // bullet item id
+                }
             }
-        } else {
-            lea.readByte();
-            ret.speed = lea.readByte();
-            lea.skip(4);
         }
+
         for (int i = 0; i < ret.numAttacked; i++) {
             int oid = lea.readInt();
             lea.skip(14);
@@ -414,14 +440,12 @@ public abstract class AbstractDealDamageHandler extends AbstractMaplePacketHandl
             for (int j = 0; j < ret.numDamage; j++) {
                 int damage = lea.readInt();
                 if (ret.skill == Marksman.SNIPE) {
-                    damage += 0x80000000; //Critical
+                    damage |= 0x80000000; // Critical
                 }
-                allDamageNumbers.add(Integer.valueOf(damage));
+                allDamageNumbers.add(damage);
             }
-            if (ret.skill != 5221004) {
-                lea.skip(4);
-            }
-            ret.allDamage.put(Integer.valueOf(oid), allDamageNumbers);
+            lea.readInt(); // mob crc
+            ret.allDamage.put(oid, allDamageNumbers);
         }
         return ret;
     }

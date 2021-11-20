@@ -63,6 +63,7 @@ import net.SendOpcode;
 import net.server.PlayerCoolDownValueHolder;
 import net.server.Server;
 import net.server.channel.Channel;
+import net.server.channel.handlers.AbstractDealDamageHandler;
 import net.server.channel.handlers.PlayerInteractionHandler;
 import net.server.channel.handlers.SummonDamageHandler.SummonAttackEntry;
 import net.server.guild.MapleAlliance;
@@ -1818,61 +1819,59 @@ public class MaplePacketCreator {
         mplew.write(allDamage.size());
         for (SummonAttackEntry attackEntry : allDamage) {
             mplew.writeInt(attackEntry.getMonsterOid()); // oid
-            mplew.write(6); // who knows
+            mplew.write(6); // hitAction
             mplew.writeInt(attackEntry.getDamage()); // damage
         }
         return mplew.getPacket();
     }
 
-    public static byte[] closeRangeAttack(MapleCharacter chr, int skill, int skilllevel, int stance, int numAttackedAndDamage, Map<Integer, List<Integer>> damage, int speed, int direction, int display) {
+    public static byte[] closeRangeAttack(MapleCharacter chr, AbstractDealDamageHandler.AttackInfo attack) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.CLOSE_RANGE_ATTACK.getValue());
-        addAttackBody(mplew, chr, skill, skilllevel, stance, numAttackedAndDamage, 0, damage, speed, direction, display);
+        addAttackBody(mplew, chr, attack, 0);
         return mplew.getPacket();
     }
 
-    public static byte[] rangedAttack(MapleCharacter chr, int skill, int skilllevel, int stance, int numAttackedAndDamage, int projectile, Map<Integer, List<Integer>> damage, int speed, int direction, int display) {
+    public static byte[] rangedAttack(MapleCharacter chr, AbstractDealDamageHandler.AttackInfo attack, int projectile) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.RANGED_ATTACK.getValue());
-        addAttackBody(mplew, chr, skill, skilllevel, stance, numAttackedAndDamage, projectile, damage, speed, direction, display);
+        addAttackBody(mplew, chr, attack, projectile);
         mplew.writeInt(0);
         return mplew.getPacket();
     }
 
-    public static byte[] magicAttack(MapleCharacter chr, int skill, int skilllevel, int stance, int numAttackedAndDamage, Map<Integer, List<Integer>> damage, int charge, int speed, int direction, int display) {
+    public static byte[] magicAttack(MapleCharacter chr, AbstractDealDamageHandler.AttackInfo attack) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.MAGIC_ATTACK.getValue());
-        addAttackBody(mplew, chr, skill, skilllevel, stance, numAttackedAndDamage, 0, damage, speed, direction, display);
-        if (charge != -1) {
-            mplew.writeInt(charge);
+        addAttackBody(mplew, chr, attack, 0);
+        if (attack.charge != -1) {
+            mplew.writeInt(attack.charge);
         }
         return mplew.getPacket();
     }
 
-    private static void addAttackBody(LittleEndianWriter lew, MapleCharacter chr, int skill, int skilllevel, int stance, int numAttackedAndDamage, int projectile, Map<Integer, List<Integer>> damage, int speed, int direction, int display) {
+    private static void addAttackBody(LittleEndianWriter lew, MapleCharacter chr, AbstractDealDamageHandler.AttackInfo attack, int projectile) {
         lew.writeInt(chr.getId());
-        lew.write(numAttackedAndDamage);
-        lew.write(0x5B);//?
-        lew.write(skilllevel);
-        if (skilllevel > 0) {
-            lew.writeInt(skill);
+        lew.write(attack.numAttackedAndDamage);
+        lew.write(chr.getLevel());
+        lew.write(attack.skilllevel);
+        if (attack.skilllevel > 0) {
+            lew.writeInt(attack.skill);
         }
-        lew.write(display);
-        lew.write(direction);
-        lew.write(stance);
-        lew.write(speed);
-        lew.write(0x0A);
+        lew.write(attack.option);
+        lew.writeShort(attack.actionAndDir);
+        lew.write(attack.speed);
+        lew.write(0x0A); // mastery
         lew.writeInt(projectile);
-        for (Integer oned : damage.keySet()) {
-            List<Integer> onedList = damage.get(oned);
-            if (onedList != null) {
-                lew.writeInt(oned.intValue());
-                lew.write(0xFF);
-                if (skill == 4211006) {
-                    lew.write(onedList.size());
+        for (var damage : attack.allDamage.entrySet()) {
+            if (damage.getValue() != null) {
+                lew.writeInt(damage.getKey());
+                lew.write(0xFF); // hitAction
+                if (attack.skill == 4211006) {
+                    lew.write(damage.getValue().size());
                 }
-                for (Integer eachd : onedList) {
-                    lew.writeInt(eachd.intValue());
+                for (Integer eachd : damage.getValue()) {
+                    lew.writeInt(eachd);
                 }
             }
         }

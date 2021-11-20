@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.server.channel.handlers;
 
-import net.server.channel.handlers.AbstractDealDamageHandler;
 import client.MapleBuffStat;
 import client.MapleCharacter;
 import client.MapleCharacter.CancelCooldownAction;
@@ -55,10 +54,10 @@ public final class RangedAttackHandler extends AbstractDealDamageHandler {
         MapleCharacter player = c.getPlayer();
         AttackInfo attack = parseDamage(slea, player, true);
         if (attack.skill == Buccaneer.ENERGY_ORB || attack.skill == ThunderBreaker.SPARK || attack.skill == Shadower.TAUNT || attack.skill == NightLord.TAUNT) {
-            player.getMap().broadcastMessage(player, MaplePacketCreator.rangedAttack(player, attack.skill, attack.skilllevel, attack.stance, attack.numAttackedAndDamage, 0, attack.allDamage, attack.speed, attack.direction, attack.display), false);
+            player.getMap().broadcastMessage(player, MaplePacketCreator.rangedAttack(player, attack, 0), false);
             applyAttack(attack, player, 1);
         } else if (attack.skill == Aran.COMBO_SMASH || attack.skill == Aran.COMBO_PENRIL || attack.skill == Aran.COMBO_TEMPEST) {
-            player.getMap().broadcastMessage(player, MaplePacketCreator.rangedAttack(player, attack.skill, attack.skilllevel, attack.stance, attack.numAttackedAndDamage, 0, attack.allDamage, attack.speed, attack.direction, attack.display), false);
+            player.getMap().broadcastMessage(player, MaplePacketCreator.rangedAttack(player, attack, 0), false);
             if (attack.skill == Aran.COMBO_SMASH && player.getCombo() >= 30) {
                 applyAttack(attack, player, 1);
             } else if (attack.skill == Aran.COMBO_PENRIL && player.getCombo() >= 100) {
@@ -141,21 +140,10 @@ public final class RangedAttackHandler extends AbstractDealDamageHandler {
                         }
                     }
                 } else //bow, crossbow
-                if (soulArrow || attack.skill == 3111004 || attack.skill == 3211004 || attack.skill == 11101004 || attack.skill == 15111007 || attack.skill == 14101006) {
-                    visProjectile = 0;
-                }
-                byte[] packet;
-                switch (attack.skill) {
-                    case 3121004: // Hurricane
-                    case 3221001: // Pierce
-                    case 5221004: // Rapid Fire
-                    case 13111002: // KoC Hurricane
-                        packet = MaplePacketCreator.rangedAttack(player, attack.skill, attack.skilllevel, attack.rangedirection, attack.numAttackedAndDamage, visProjectile, attack.allDamage, attack.speed, attack.direction, attack.display);
-                        break;
-                    default:
-                        packet = MaplePacketCreator.rangedAttack(player, attack.skill, attack.skilllevel, attack.stance, attack.numAttackedAndDamage, visProjectile, attack.allDamage, attack.speed, attack.direction, attack.display);
-                        break;
-                }
+                    if (soulArrow || attack.skill == 3111004 || attack.skill == 3211004 || attack.skill == 11101004 || attack.skill == 15111007 || attack.skill == 14101006) {
+                        visProjectile = 0;
+                    }
+                byte[] packet = MaplePacketCreator.rangedAttack(player, attack, visProjectile);
                 player.getMap().broadcastMessage(player, packet, false, true);
                 if (effect != null) {
                     int money = effect.getMoneyCon();

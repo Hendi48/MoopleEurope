@@ -1792,17 +1792,16 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static byte[] moveMonster(int useskill, int skill, int skill_1, int skill_2, int skill_3, int skill_4, int oid, Point startPos, List<LifeMovementFragment> moves) {
+    public static byte[] moveMonster(int useskill, int actionAndDir, int skillId, int skillLevel, int option, int oid, Point startPos, List<LifeMovementFragment> moves) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.MOVE_MONSTER.getValue());
         mplew.writeInt(oid);
         mplew.write(0);
         mplew.write(useskill);
-        mplew.write(skill);
-        mplew.write(skill_1);
-        mplew.write(skill_2);
-        mplew.write(skill_3);
-        mplew.write(skill_4);
+        mplew.write(actionAndDir);
+        mplew.write(skillId);
+        mplew.write(skillLevel);
+        mplew.writeShort(option);
         mplew.writePos(startPos);
         serializeMovementList(mplew, moves);
         return mplew.getPacket();

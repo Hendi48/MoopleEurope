@@ -36,6 +36,7 @@ import tools.Randomizer;
 import tools.data.input.SeekableLittleEndianAccessor;
 
 public final class MoveLifeHandler extends AbstractMovementPacketHandler {
+
     @Override
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         int objectid = slea.readInt();
@@ -46,15 +47,16 @@ public final class MoveLifeHandler extends AbstractMovementPacketHandler {
         }
         MapleMonster monster = (MapleMonster) mmo;
         List<LifeMovementFragment> res;
-        byte skillByte = slea.readByte();
-        byte skill = slea.readByte();
-        int skill_1 = slea.readByte() & 0xFF;
-        byte skill_2 = slea.readByte();
-        byte skill_3 = slea.readByte();
-        byte skill_4 = slea.readByte();
-        slea.read(8);
+        byte nextFlag = slea.readByte();
+        byte actionAndDir = slea.readByte();
+        int skillId = slea.readByte() & 0xFF;
+        int skillLevel = slea.readByte() & 0xFF;
+        int option = slea.readShort();
+        slea.readByte(); // upper 4 bits: is cheat mob move rand
+        slea.readInt(); // hacked code
+        slea.read(8); // target x/y or CC DD FF 00 if no target
         MobSkill toUse = null;
-        if (skillByte == 1 && monster.getNoSkills() > 0) {
+        if (nextFlag == 1 && monster.getNoSkills() > 0) {
             int random = Randomizer.nextInt(monster.getNoSkills());
             Pair<Integer, Integer> skillToUse = monster.getSkills().get(random);
             toUse = MobSkillFactory.getMobSkill(skillToUse.getLeft(), skillToUse.getRight());
@@ -63,17 +65,15 @@ public final class MoveLifeHandler extends AbstractMovementPacketHandler {
                 toUse = null;
             }
         }
-        if ((skill_1 >= 100 && skill_1 <= 200) && monster.hasSkill(skill_1, skill_2)) {
-            MobSkill skillData = MobSkillFactory.getMobSkill(skill_1, skill_2);
+        if ((skillId >= 100 && skillId <= 200) && monster.hasSkill(skillId, skillLevel)) {
+            MobSkill skillData = MobSkillFactory.getMobSkill(skillId, skillLevel);
             if (skillData != null && monster.canUseSkill(skillData)) {
                 skillData.applyEffect(c.getPlayer(), monster, true);
             }
         }
-        slea.readByte();
-        slea.readInt(); // whatever
-        short start_x = slea.readShort(); // hmm.. startpos?
-        short start_y = slea.readShort(); // hmm...
-        Point startPos = new Point(start_x, start_y);
+        short startX = slea.readShort();
+        short startY = slea.readShort();
+        Point startPos = new Point(startX, startY);
         res = parseMovement(slea);
         if (monster.getController() != c.getPlayer()) {
             if (monster.isAttackedBy(c.getPlayer())) {// aggro and controller change
@@ -81,7 +81,7 @@ public final class MoveLifeHandler extends AbstractMovementPacketHandler {
             } else {
                 return;
             }
-        } else if (skill == -1 && monster.isControllerKnowsAboutAggro() && !monster.isMobile() && !monster.isFirstAttack()) {
+        } else if (actionAndDir == -1 && monster.isControllerKnowsAboutAggro() && !monster.isMobile() && !monster.isFirstAttack()) {
             monster.setControllerHasAggro(false);
             monster.setControllerKnowsAboutAggro(false);
         }
@@ -95,7 +95,7 @@ public final class MoveLifeHandler extends AbstractMovementPacketHandler {
             monster.setControllerKnowsAboutAggro(true);
         }
         if (res != null) {
-            c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.moveMonster(skillByte, skill, skill_1, skill_2, skill_3, skill_4, objectid, startPos, res), monster.getPosition());
+            c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.moveMonster(nextFlag, actionAndDir, skillId, skillLevel, option, objectid, startPos, res), monster.getPosition());
             updatePosition(res, monster, -1);
             c.getPlayer().getMap().moveMonster(monster, monster.getPosition());
         }

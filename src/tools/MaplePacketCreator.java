@@ -3408,14 +3408,14 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static byte[] triggerReactor(MapleReactor reactor, int stance) {
+    public static byte[] triggerReactor(MapleReactor reactor, int actionDelay) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         Point pos = reactor.getPosition();
         mplew.writeShort(SendOpcode.REACTOR_HIT.getValue());
         mplew.writeInt(reactor.getObjectId());
         mplew.write(reactor.getState());
         mplew.writePos(pos);
-        mplew.writeShort(stance);
+        mplew.writeShort(actionDelay);
         mplew.write(0);
         mplew.write(5); // frame delay, set to 5 since there doesn't appear to be a fixed formula for it
         return mplew.getPacket();

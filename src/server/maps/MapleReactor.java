@@ -137,7 +137,7 @@ public class MapleReactor extends AbstractMapleMapObject {
         hitReactor(0, (short) 0, 0, c);
     }
 
-    public void hitReactor(int charPos, short stance, int skillid, MapleClient c) {
+    public void hitReactor(int charPos, short actionDelay, int skillid, MapleClient c) {
         try {
         if (stats.getType(state) < 999 && stats.getType(state) != -1) {//type 2 = only hit from right (kerning swamp plants), 00 is air left 02 is ground left
             if (!(stats.getType(state) == 2 && (charPos == 0 || charPos == 2))) { //get next state
@@ -152,14 +152,14 @@ public class MapleReactor extends AbstractMapleMapObject {
                             if (delay > 0) {
                                 map.destroyReactor(getObjectId());
                             } else {//trigger as normal
-                                map.broadcastMessage(MaplePacketCreator.triggerReactor(this, stance));
+                                map.broadcastMessage(MaplePacketCreator.triggerReactor(this, actionDelay));
                             }
                         } else {//item-triggered on final step
-                            map.broadcastMessage(MaplePacketCreator.triggerReactor(this, stance));
+                            map.broadcastMessage(MaplePacketCreator.triggerReactor(this, actionDelay));
                         }
                         ReactorScriptManager.getInstance().act(c, this);
                     } else { //reactor not broken yet
-                        map.broadcastMessage(MaplePacketCreator.triggerReactor(this, stance));
+                        map.broadcastMessage(MaplePacketCreator.triggerReactor(this, actionDelay));
                         if (state == stats.getNextState(state, b)) {//current state = next state, looping reactor
                             ReactorScriptManager.getInstance().act(c, this);
                         }
@@ -169,7 +169,7 @@ public class MapleReactor extends AbstractMapleMapObject {
             }
         } else {
             state++;
-            map.broadcastMessage(MaplePacketCreator.triggerReactor(this, stance));
+            map.broadcastMessage(MaplePacketCreator.triggerReactor(this, actionDelay));
             ReactorScriptManager.getInstance().act(c, this);
         }
         } catch(Exception e) {

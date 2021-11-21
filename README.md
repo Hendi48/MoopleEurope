@@ -9,7 +9,8 @@ Server source for EMS v65. Based on MoopleDEV v83 by kevintjuh93.
 
 ## Usage
 
-1. Create a database schema (default name is `moopledev`) and import `SQL/MoopleDEV.sql`.
+1. Create a database schema (default name is `moopledev`).
+1. Import `SQL/MoopleDEV.sql` and `SQL/MonsterDrops.sql`.
 1. Build the project or download a pre-built binary (see below).
 1. Run the `create_server` script which will walk you through configuration.
 1. Run the `launch_server` script that was created automatically in the previous step.

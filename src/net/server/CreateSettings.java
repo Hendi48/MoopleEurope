@@ -8,29 +8,58 @@ import java.io.IOException;
  *
  * @author kevintjuh93
  */
-public class CreateINI {
+public class CreateSettings {
 
     public static void main(String args[]) {
         StringBuilder sb = new StringBuilder();
         String nextline = "\r\n";//Because I can, and it's free.
-        byte worlds;
+        int worlds;
         Console con = System.console();
 
-        System.out.println("Welcome to MoopleDEV's .ini creator\r\n\r\n");
+        System.out.println("Welcome to MoopleDEV's settings creator\n\n");
 
-        sb.append("#MoopleDEV's INI file. Do NOT modify it if you are an idiot (:\r\n");
-        sb.append("#Flag types: 0 = nothing, 1 = event, 2 = new, 3 = hot\r\n\r\n");
+        sb.append("# MoopleDEV's settings file. Do NOT modify it if you are an idiot (:\r\n");
+        sb.append("# Flag types: 0 = nothing, 1 = event, 2 = new, 3 = hot\r\n\r\n");
 
-        System.out.println("Flag types: 0 = nothing, 1 = event, 2 = new, 3 = hot\r\n\r\n");
+        System.out.println("Flag types: 0 = nothing, 1 = event, 2 = new, 3 = hot\n\n");
 
-        worlds = Byte.parseByte(con.readLine("Number of worlds: "));
+        String wzPath;
+        do {
+            wzPath = con.readLine("WZ path (e.g., C:\\Nexon\\MapleStory): ");
+        } while (wzPath.equals(""));
+        wzPath = wzPath.replace("\\", "/");
+
+        var host = con.readLine("Server host (default=localhost): ");
+        if (host.equals("")) {
+            host = "localhost";
+        }
+        sb.append("host=").append(host).append("\r\n\r\n");
+
+        var dbUrl = con.readLine("Database url (default=jdbc:mysql://localhost:3306/MoopleDEV?autoReconnect=true): ");
+        if (dbUrl.equals("")) {
+            dbUrl = "jdbc:mysql://localhost:3306/MoopleDEV?autoReconnect=true";
+        }
+        sb.append("db_url=").append(dbUrl).append("\r\n");
+        var dbUser = con.readLine("Database user (default=root): ");
+        if (dbUser.equals("")) {
+            dbUser = "root";
+        }
+        sb.append("db_user=").append(dbUser).append("\r\n");
+        var dbPass = con.readLine("Database password (default=): ");
+        sb.append("db_pass=").append(dbPass).append("\r\n\r\n");
+
+        var worldsStr = con.readLine("Number of worlds (default=1): ");
+        if (worldsStr.equals("")) {
+            worldsStr = "1";
+        }
+        worlds = Integer.parseInt(worldsStr);
         sb.append("worlds=").append(worlds).append("\r\n\r\n");
 
-        System.out.println("\r\n");
+        System.out.println("\n");
 
 
         for (byte b = 0; b < worlds; b++) {
-            sb.append("#Properties for world ").append(b).append("\r\n");
+            sb.append("# Properties for world ").append(b).append("\r\n");
 
             System.out.println("Properties for world " + b);
             if (b > 1) {
@@ -70,7 +99,7 @@ public class CreateINI {
         sb.append("\r\n").append("gmserver=").append(Boolean.parseBoolean(con.readLine("Do you want a GM Server? (true/false)")));
         FileOutputStream out = null;
         try {
-            out = new FileOutputStream("moople.ini", false);
+            out = new FileOutputStream("moople.properties", false);
             out.write(sb.toString().getBytes());
         } catch (Exception ex) {
         } finally {
@@ -84,13 +113,9 @@ public class CreateINI {
 
         sb = new StringBuilder();
         try {
-            System.out.println("\r\nYou are about to set the Java Heap Size, if you don't know what it is, type '?'.");
-            String heapsize = con.readLine("Java Heap Size (in MB): ");
-            while (heapsize.equals("?")) {
-                System.out.println("\r\n");
-                System.out.println("WikiAnswers: Java heap is the heap size allocated to JVM applications which takes care of the new objects being created. If the objects being created exceed the heap size, it will throw an error saying memoryOutof Bound\r\n");
-                System.out.println("I recommend using 64 bit with the heap size around 4000, if you have 4 gb RAM.");
-                heapsize = con.readLine("Java Heap Size (in MB): ");
+            String heapsize = con.readLine("Java Heap Size (in MB - default=1024): ");
+            if (heapsize.equals("")) {
+                heapsize = "1024";
             }
             String linux = con.readLine("\r\nAre you using a Linux platform or not? (y/n):");
             while (!linux.equals("y") && !linux.equals("n")) {
@@ -99,17 +124,14 @@ public class CreateINI {
             }
             if (linux.equals("n")) {
                 out = new FileOutputStream("launch_server.bat", false);
-                sb.append("@echo off").append("\r\n").append("@title MoopleDEV Server v83").append("\r\n");
-                sb.append("set CLASSPATH=.;dist\\*\r\n");
-                sb.append("java -Xmx").append(heapsize).append("m -Dwzpath=wz\\ net.server.Server\r\n");
+                sb.append("@echo off").append("\r\n").append("@title MoopleEurope").append("\r\n");
+                sb.append("java -cp dist\\*;lib\\* -Xmx").append(heapsize).append("m -Dwzpath=").append(wzPath).append(" net.server.Server\r\n");
                 sb.append("pause");
             } else {//test
                 out = new FileOutputStream("launch_server.sh", false);
-                sb.append("#!/bin/sh").append("\r\n\r\n");
-                sb.append("export CLASSPATH=\".:dist/*\" \r\n\r\n");
-                sb.append("java -Dwzpath=wz/ \\\r\n");
+                sb.append("#!/bin/sh").append("\n\n");
+                sb.append("java -cp dist/MoopleEurope.jar:lib/* -Dwzpath=").append(wzPath).append(" \\\n");
                 sb.append("-Xmx").append(heapsize).append("m ").append("net.server.Server");
-                System.out.println("Use DOS2UNIX command to convert the .sh file once again.");
             }
             out.write(sb.toString().getBytes());
         } catch (Exception ex) {
@@ -121,7 +143,6 @@ public class CreateINI {
             } catch (IOException ex) {
             }
         }
-        System.out.println("\r\nMake sure that ServerConstants in modified too, and clean+compiled before you start the server.");
-        System.out.println("If you want other settings; restart this .bat or modify the moople.ini");
+        System.out.println("\nIf you want other settings, restart this script or modify moople.properties");
     }
 }

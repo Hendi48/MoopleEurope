@@ -35,9 +35,9 @@ public class ServerConstants {
     public static final boolean PERFECT_PITCH = false;
     public static final String EVENTS = "automsg KerningPQ Boats Subway AirPlane elevator";
     // IP Configuration
-    public static final String HOST = "localhost";
+    public static String HOST = "localhost";
     //Database Configuration
-    public static final String DB_URL = "jdbc:mysql://localhost:3306/MoopleDEV?autoReconnect=true";
-    public static final String DB_USER = "root";
-    public static final String DB_PASS = "root";
+    public static String DB_URL;
+    public static String DB_USER;
+    public static String DB_PASS;
 }

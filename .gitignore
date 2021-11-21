@@ -3,3 +3,5 @@ dist/
 logs/
 nbproject/private
 .vscode/
+launch_server.bat
+moople.properties

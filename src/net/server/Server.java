@@ -67,7 +67,6 @@ public class Server implements Runnable {
     private IoAcceptor acceptor;
     private List<Map<Integer, String>> channels = new LinkedList<>();
     private List<World> worlds = new ArrayList<>();
-    private Properties subnetInfo = new Properties();
     private static Server instance = null;
     private List<Pair<Integer, String>> worldRecommendedList = new LinkedList<>();
     private Map<Integer, MapleGuild> guilds = new LinkedHashMap<>();
@@ -126,14 +125,19 @@ public class Server implements Runnable {
     public void run() {
         Properties p = new Properties();
         try {
-            p.load(new FileInputStream("moople.ini"));
+            p.load(new FileInputStream("moople.properties"));
         } catch (Exception e) {
             System.out.println("Please start create_server.bat");
             System.exit(0);
         }
 
-        System.out.println("MoopleEurope v" + ServerConstants.VERSION + " starting up.\r\n");
+        System.out.println("MoopleEurope v" + ServerConstants.VERSION + " starting up.\n");
 
+        ServerConstants.DB_URL = p.getProperty("db_url");
+        ServerConstants.DB_USER = p.getProperty("db_user");
+        ServerConstants.DB_PASS = p.getProperty("db_pass");
+
+        ServerConstants.HOST = p.getProperty("host");
 
         Runtime.getRuntime().addShutdownHook(new Thread(shutdown(false)));
         DatabaseConnection.getConnection();
@@ -185,10 +189,10 @@ public class Server implements Runnable {
                     channels.get(i).put(channelid, channel.getIP());
                 }
                 world.setServerMessage(p.getProperty("servermessage" + i));
-                System.out.println("Finished loading world " + i + "\r\n");
+                System.out.println("Finished loading world " + i + "\n");
             }
         } catch (Exception e) {
-            System.out.println("Error in moople.ini, start CreateINI.bat to re-make the file.");
+            System.out.println("Error in moople.properties, start create_server.bat to re-make the file.");
             e.printStackTrace();//For those who get errors
             System.exit(0);
         }
@@ -200,7 +204,7 @@ public class Server implements Runnable {
         } catch (IOException ex) {
         }
         
-        System.out.println("Listening on port 8484\r\n\r\n");
+        System.out.println("Listening on port 8484\n\n");
 
         if (Boolean.parseBoolean(p.getProperty("gmserver"))) {
             GMServer.startGMServer();
@@ -218,10 +222,6 @@ public class Server implements Runnable {
 
     public static void main(String args[]) {
         Server.getInstance().run();
-    }
-
-    public Properties getSubnetInfo() {
-        return subnetInfo;
     }
 
     public MapleAlliance getAlliance(int id) {

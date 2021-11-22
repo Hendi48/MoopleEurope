@@ -59,6 +59,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import net.SendOpcode;
 import net.server.PlayerCoolDownValueHolder;
 import net.server.Server;
@@ -77,7 +78,6 @@ import server.CashShop.CashItem;
 import server.CashShop.CashItemFactory;
 import server.CashShop.SpecialCashItem;
 import server.DueyPackages;
-import server.MTSItemInfo;
 import server.MapleItemInformationProvider;
 import server.MapleMiniGame;
 import server.MaplePlayerShop;
@@ -1552,7 +1552,7 @@ public class MaplePacketCreator {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SPAWN_PLAYER.getValue());
         mplew.writeInt(chr.getId());
-        mplew.write(chr.getLevel()); //v83
+        mplew.write(chr.getLevel());
         mplew.writeMapleAsciiString(chr.getName());
         if (chr.getGuildId() < 1) {
             mplew.writeMapleAsciiString("");
@@ -1570,23 +1570,25 @@ public class MaplePacketCreator {
                 mplew.write(new byte[6]);
             }
         }
-        mplew.writeInt(0);
-        mplew.writeShort(0); //v83
-        mplew.write(0xFC);
-        mplew.write(1);
-        if (chr.getBuffedValue(MapleBuffStat.MORPH) != null) {
-            mplew.writeInt(2);
-        } else {
-            mplew.writeInt(0);
+
+        // Buffs
+        long buffmask = 0, buffmask2 = 0;
+
+        final Item mount = chr.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -18);
+        if (chr.getBuffedValue(MapleBuffStat.MONSTER_RIDING) != null && mount != null) {
+            buffmask2 |= MapleBuffStat.MONSTER_RIDING.getValue();
         }
-        long buffmask = 0;
-        Integer buffvalue = null;
+        if (chr.getBuffedValue(MapleBuffStat.ENERGY_CHARGE) != null) {
+            buffmask2 |= MapleBuffStat.ENERGY_CHARGE.getValue();
+        }
+
+        List<Pair<MapleBuffStat, Integer>> values = new ArrayList<>();
         if (chr.getBuffedValue(MapleBuffStat.DARKSIGHT) != null && !chr.isHidden()) {
             buffmask |= MapleBuffStat.DARKSIGHT.getValue();
         }
         if (chr.getBuffedValue(MapleBuffStat.COMBO) != null) {
             buffmask |= MapleBuffStat.COMBO.getValue();
-            buffvalue = Integer.valueOf(chr.getBuffedValue(MapleBuffStat.COMBO).intValue());
+            values.add(new Pair<>(MapleBuffStat.COMBO, chr.getBuffedValue(MapleBuffStat.COMBO)));
         }
         if (chr.getBuffedValue(MapleBuffStat.SHADOWPARTNER) != null) {
             buffmask |= MapleBuffStat.SHADOWPARTNER.getValue();
@@ -1595,72 +1597,73 @@ public class MaplePacketCreator {
             buffmask |= MapleBuffStat.SOULARROW.getValue();
         }
         if (chr.getBuffedValue(MapleBuffStat.MORPH) != null) {
-            buffvalue = Integer.valueOf(chr.getBuffedValue(MapleBuffStat.MORPH).intValue());
+            buffmask |= MapleBuffStat.MORPH.getValue();
+            values.add(new Pair<>(MapleBuffStat.MORPH, chr.getBuffedValue(MapleBuffStat.MORPH)));
         }
-        if (chr.getBuffedValue(MapleBuffStat.ENERGY_CHARGE) != null) {
-            buffmask |= MapleBuffStat.ENERGY_CHARGE.getValue();
-            buffvalue = Integer.valueOf(chr.getBuffedValue(MapleBuffStat.ENERGY_CHARGE).intValue());
-        }//AREN'T THESE 
-        mplew.writeInt((int) ((buffmask >> 32) & 0xffffffffL));
-        if (buffvalue != null) {
-            if (chr.getBuffedValue(MapleBuffStat.MORPH) != null) { //TEST
-                mplew.writeShort(buffvalue);
-            } else {
-                mplew.write(buffvalue.byteValue());
+
+        mplew.writeLong(buffmask2);
+        mplew.writeLong(buffmask);
+
+        for (var buff : values) {
+            switch (buff.getLeft()) {
+                case COMBO:
+                    mplew.write(buff.getRight().byteValue());
+                    break;
+                default:
+                    mplew.writeShort(buff.getRight().shortValue());
+                    break;
             }
         }
-        mplew.writeInt((int) (buffmask & 0xffffffffL));
-        int CHAR_MAGIC_SPAWN = Randomizer.nextInt();
-        mplew.skip(6);
-        mplew.writeInt(CHAR_MAGIC_SPAWN);
-        mplew.skip(11);
-        mplew.writeInt(CHAR_MAGIC_SPAWN);//v74
-        mplew.skip(11);
-        mplew.writeInt(CHAR_MAGIC_SPAWN);
-        mplew.writeShort(0);
+
         mplew.write(0);
-        final Item mount = chr.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -18);
-        if (chr.getBuffedValue(MapleBuffStat.MONSTER_RIDING) != null && mount != null) {
-            mplew.writeInt(mount.getItemId());
-            mplew.writeInt(1004);
-        } else {
-            mplew.writeLong(0);
+        mplew.write(0);
+
+        if ((buffmask2 & MapleBuffStat.ENERGY_CHARGE.getValue()) != 0) {
+            mplew.writeInt(Optional.of(chr.getBuffedValue(MapleBuffStat.ENERGY_CHARGE)).orElse(0));
+            mplew.writeInt(0); // buff id
+            mplew.write(0);
+            mplew.writeInt(0); // lastUpdate
+            mplew.writeShort(0); // expireTerm
         }
-        mplew.writeInt(CHAR_MAGIC_SPAWN);
-        mplew.skip(9);
-        mplew.writeInt(CHAR_MAGIC_SPAWN);
-        mplew.writeShort(0);
-        mplew.writeInt(0); // actually not 0, why is it 0 then?
-        mplew.skip(10);
-        mplew.writeInt(CHAR_MAGIC_SPAWN);
-        mplew.skip(13);
-        mplew.writeInt(CHAR_MAGIC_SPAWN);
-        mplew.writeShort(0);
-        mplew.write(0);
+        if ((buffmask2 & MapleBuffStat.MONSTER_RIDING.getValue()) != 0 && mount != null) {
+            mplew.writeInt(mount.getItemId());
+            mplew.writeInt(1004); // buff id
+            mplew.write(0);
+            mplew.writeInt(0); // lastUpdate
+        }
+        // -------------------------------------
+
         mplew.writeShort(chr.getJob().getId());
         addCharLook(mplew, chr, false);
         mplew.writeInt(chr.getInventory(MapleInventoryType.CASH).countById(5110000));
         mplew.writeInt(chr.getItemEffect());
         mplew.writeInt(ItemConstants.getInventoryType(chr.getChair()) == MapleInventoryType.SETUP ? chr.getChair() : 0);
+        mplew.writeInt(0); // CompletedSetItemID
         mplew.writePos(chr.getPosition());
         mplew.write(chr.getStance());
         mplew.writeShort(0);//chr.getFh()
-        mplew.write(0);
+        mplew.write(0); // admin effect
+
         MaplePet[] pet = chr.getPets();
         for (int i = 0; i < 3; i++) {
             if (pet[i] != null) {
-                addPetInfo(mplew, pet[i], false);
+                mplew.write(1);
+                addPetInfo(mplew, pet[i]);
             }
         }
         mplew.write(0); //end of pets
+
         if (chr.getMount() == null) {
-            mplew.writeInt(1); // mob level
-            mplew.writeLong(0); // mob exp + tiredness
+            mplew.writeInt(1); // mount level
+            mplew.skip(8); // mount exp + tiredness
         } else {
             mplew.writeInt(chr.getMount().getLevel());
             mplew.writeInt(chr.getMount().getExp());
             mplew.writeInt(chr.getMount().getTiredness());
         }
+
+        mplew.writeInt(0); // follow passenger id
+
         if (chr.getPlayerShop() != null && chr.getPlayerShop().isOwner(chr)) {
             if (chr.getPlayerShop().hasFreeSlot()) {
                 addAnnounceBox(mplew, chr.getPlayerShop(), chr.getPlayerShop().getVisitors().length);
@@ -1676,12 +1679,14 @@ public class MaplePacketCreator {
         } else {
             mplew.write(0);
         }
+
         if (chr.getChalkboard() != null) {
             mplew.write(1);
             mplew.writeMapleAsciiString(chr.getChalkboard());
         } else {
             mplew.write(0);
         }
+
         addRingLook(mplew, chr, true);
         addRingLook(mplew, chr, false);
         addMarriageRingLook(mplew, chr);
@@ -3834,19 +3839,15 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static void addPetInfo(final MaplePacketLittleEndianWriter mplew, MaplePet pet, boolean showpet) {
-        mplew.write(1);
-        if (showpet) {
-            mplew.write(0);
-        }
-
+    public static void addPetInfo(final MaplePacketLittleEndianWriter mplew, MaplePet pet) {
         mplew.writeInt(pet.getItemId());
         mplew.writeMapleAsciiString(pet.getName());
-        mplew.writeInt(pet.getUniqueId());
-        mplew.writeInt(0);
+        mplew.writeLong(pet.getUniqueId());
         mplew.writePos(pet.getPos());
         mplew.write(pet.getStance());
         mplew.writeInt(pet.getFh());
+        mplew.write(0); // name tag
+        mplew.write(0); // chat balloon
     }
 
     public static byte[] showPet(MapleCharacter chr, MaplePet pet, boolean remove, boolean hunger) {
@@ -3854,11 +3855,12 @@ public class MaplePacketCreator {
         mplew.writeShort(SendOpcode.SPAWN_PET.getValue());
         mplew.writeInt(chr.getId());
         mplew.write(chr.getPetIndex(pet));
+        mplew.writeBool(!remove);
         if (remove) {
-            mplew.write(0);
             mplew.write(hunger ? 1 : 0);
         } else {
-            addPetInfo(mplew, pet, true);
+            mplew.write(0);
+            addPetInfo(mplew, pet);
         }
         return mplew.getPacket();
     }

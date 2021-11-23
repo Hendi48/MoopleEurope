@@ -65,10 +65,10 @@ public final class CouponCodeHandler extends AbstractMaplePacketHandler {
                 case 0:
                 case 1:
                 case 2:
-                    c.getPlayer().getCashShop().gainCash(type, item);
+                    c.getPlayer().getCashShop().gainCash(type == 0 ? 1 : type * 2, item);
                     break;
                 case 3:
-                    c.getPlayer().getCashShop().gainCash(0, item);
+                    c.getPlayer().getCashShop().gainCash(1, item);
                     c.getPlayer().getCashShop().gainCash(2, (item / 5000));
                     break;
                 case 4:
@@ -76,7 +76,7 @@ public final class CouponCodeHandler extends AbstractMaplePacketHandler {
                     c.announce(MaplePacketCreator.showCouponRedeemedItem(item));
                     break;
                 case 5:
-                    c.getPlayer().getCashShop().gainCash(0, item);
+                    c.getPlayer().getCashShop().gainCash(1, item);
                     break;
             }
             c.announce(MaplePacketCreator.showCash(c.getPlayer()));

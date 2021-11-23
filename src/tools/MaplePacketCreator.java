@@ -625,7 +625,7 @@ public class MaplePacketCreator {
         mplew.writeBool(c.gmLevel() > 0);
         //mplew.writeShort(toWrite > 0x80 ? 0x80 : toWrite); only in higher versions...
         mplew.writeMapleAsciiString(c.getAccountName());
-        mplew.write(0);
+        mplew.write(8); // required to be 8 or you get a "free gift" dialog whenever entering Cash Shop
         mplew.write(0); //isquietbanned
         mplew.writeLong(0);//isquietban time
         mplew.writeLong(0); //creation time
@@ -4851,9 +4851,10 @@ public class MaplePacketCreator {
     public static byte[] showCouponRedeemedItem(int itemid) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.CASHSHOP_OPERATION.getValue());
-        mplew.writeShort(0x49); //v72
+        mplew.write(81);
+        mplew.write(0); // number of cash items
         mplew.writeInt(0);
-        mplew.writeInt(1);
+        mplew.writeInt(1); // number of normal items
         mplew.writeShort(1);
         mplew.writeShort(0x1A);
         mplew.writeInt(itemid);
@@ -5356,7 +5357,7 @@ public class MaplePacketCreator {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.CASHSHOP_OPERATION.getValue());
 
-        mplew.write(0x89);
+        mplew.write(129);
         mplew.write(cashPackage.size());
 
         for (Item item : cashPackage) {
@@ -5372,7 +5373,7 @@ public class MaplePacketCreator {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.CASHSHOP_OPERATION.getValue());
 
-        mplew.write(0x8D);
+        mplew.write(133);
         mplew.writeInt(1);
         mplew.writeShort(1);
         mplew.write(0x0B);
@@ -6102,9 +6103,9 @@ public class MaplePacketCreator {
         mplew.writeShort(SendOpcode.CASHSHOP_OPERATION.getValue());
 
         if (update) {
-            mplew.write(0x55);
+            mplew.write(77);
         } else {
-            mplew.write(0x4F);
+            mplew.write(75);
         }
 
         for (int sn : mc.getCashShop().getWishList()) {
@@ -6122,7 +6123,7 @@ public class MaplePacketCreator {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.CASHSHOP_OPERATION.getValue());
 
-        mplew.write(0x57);
+        mplew.write(79);
         addCashItemInformation(mplew, item, accountId);
 
         return mplew.getPacket();
@@ -6151,7 +6152,7 @@ public class MaplePacketCreator {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(4);
         mplew.writeShort(SendOpcode.CASHSHOP_OPERATION.getValue());
 
-        mplew.write(0x5C);
+        mplew.write(87); // ResGiftFailed
         mplew.write(message);
 
         return mplew.getPacket();
@@ -6161,7 +6162,7 @@ public class MaplePacketCreator {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.CASHSHOP_OPERATION.getValue());
 
-        mplew.write(0x4B);
+        mplew.write(71);
         mplew.writeShort(c.getPlayer().getCashShop().getInventory().size());
 
         for (Item item : c.getPlayer().getCashShop().getInventory()) {
@@ -6178,7 +6179,7 @@ public class MaplePacketCreator {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.CASHSHOP_OPERATION.getValue());
 
-        mplew.write(0x4D);
+        mplew.write(73);
         mplew.writeShort(gifts.size());
 
         for (Pair<Item, String> gift : gifts) {
@@ -6192,7 +6193,7 @@ public class MaplePacketCreator {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.CASHSHOP_OPERATION.getValue());
 
-        mplew.write(0x5E); //0x5D, Couldn't be sent
+        mplew.write(86);
         mplew.writeMapleAsciiString(to);
         mplew.writeInt(item.getItemId());
         mplew.writeShort(item.getCount());
@@ -6205,7 +6206,7 @@ public class MaplePacketCreator {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(6);
         mplew.writeShort(SendOpcode.CASHSHOP_OPERATION.getValue());
 
-        mplew.write(0x60);
+        mplew.write(88);
         mplew.write(type);
         mplew.writeShort(slots);
 
@@ -6216,7 +6217,7 @@ public class MaplePacketCreator {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(5);
         mplew.writeShort(SendOpcode.CASHSHOP_OPERATION.getValue());
 
-        mplew.write(0x62);
+        mplew.write(90);
         mplew.writeShort(slots);
 
         return mplew.getPacket();
@@ -6226,7 +6227,7 @@ public class MaplePacketCreator {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(5);
         mplew.writeShort(SendOpcode.CASHSHOP_OPERATION.getValue());
 
-        mplew.write(0x64);
+        mplew.write(92);
         mplew.writeShort(slots);
 
         return mplew.getPacket();
@@ -6236,7 +6237,7 @@ public class MaplePacketCreator {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.CASHSHOP_OPERATION.getValue());
 
-        mplew.write(0x68);
+        mplew.write(96);
         mplew.writeShort(item.getPosition());
         addItemInfo(mplew, item, true);
 
@@ -6247,7 +6248,7 @@ public class MaplePacketCreator {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.CASHSHOP_OPERATION.getValue());
 
-        mplew.write(0x6A);
+        mplew.write(98);
         addCashItemInformation(mplew, item, accountId);
 
         return mplew.getPacket();
@@ -6259,18 +6260,23 @@ public class MaplePacketCreator {
 
         addCharacterInfo(mplew, c.getPlayer());
 
+        mplew.writeBool(true); // bCashShopAuthorized
         mplew.writeMapleAsciiString(c.getAccountName());
+        mplew.write(0); // ?
 
         mplew.writeInt(0);
         List<SpecialCashItem> lsci = CashItemFactory.getSpecialCashItems();
-        mplew.writeShort(lsci.size());//Guess what
+        mplew.writeShort(lsci.size());
         for (SpecialCashItem sci : lsci) {
             mplew.writeInt(sci.getSN());
             mplew.writeInt(sci.getModifier());
-            mplew.write(sci.getInfo());
+            mplew.write(sci.getInfo()); // this is not correct, a lot more can be written depending on modifier
         }
-        mplew.skip(121);
+        mplew.writeShort(0);
+        mplew.write(0);
 
+        // Best
+        mplew.skip(120);
         for (int i = 1; i <= 8; i++) {
             for (int j = 0; j < 2; j++) {
                 mplew.writeInt(i);
@@ -6295,10 +6301,10 @@ public class MaplePacketCreator {
             }
         }
 
-        mplew.writeInt(0);
-        mplew.writeShort(0);
+        mplew.writeShort(0); // Stock
+        mplew.writeShort(0); // LimitGoods
+
         mplew.write(0);
-        mplew.writeInt(75);
 
         return mplew.getPacket();
     }

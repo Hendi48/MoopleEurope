@@ -53,8 +53,7 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
         }
         final int action = slea.readByte();
         if (action == 0x03 || action == 0x1E) {
-            slea.readByte();
-            final int useNX = slea.readInt();
+            final int useNX = slea.readByte() == 1 ? 2 : 1;
             final int snCS = slea.readInt();
             CashItem cItem = CashItemFactory.getItem(snCS);
             if (cItem == null || !cItem.isOnSale() || cs.getCash(useNX) < cItem.getPrice()) {
@@ -78,7 +77,7 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
             CashItem cItem = CashItemFactory.getItem(slea.readInt());
             Map<String, String> recipient = MapleCharacter.getCharacterFromDatabase(slea.readMapleAsciiString());
             String message = slea.readMapleAsciiString();
-            if (!canBuy(cItem, cs.getCash(4)) || message.length() < 1 || message.length() > 73) {
+            if (!canBuy(cItem, cs.getCash(1)) || message.length() < 1 || message.length() > 73) {
                 return;
             }
             if (!checkBirthday(c, birthday)) {
@@ -93,7 +92,7 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
             }
             cs.gift(Integer.parseInt(recipient.get("id")), chr.getName(), message, cItem.getSN());
             c.announce(MaplePacketCreator.showGiftSucceed(recipient.get("name"), cItem));
-            cs.gainCash(4, -cItem.getPrice());
+            cs.gainCash(1, -cItem.getPrice());
             c.announce(MaplePacketCreator.showCash(chr));
             try {
                 chr.sendNote(recipient.get("name"), chr.getName() + " has sent you a gift! Go check out the Cash Shop.", (byte) 0); //fame or not
@@ -112,8 +111,7 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
             }
             c.announce(MaplePacketCreator.showWishList(chr, true));
         } else if (action == 0x06) { // Increase Inventory Slots
-            slea.skip(1);
-            int cash = slea.readInt();
+            int cash = slea.readByte() == 1 ? 2 : 1;
             byte mode = slea.readByte();
             if (mode == 0) {
                 byte type = slea.readByte();
@@ -138,8 +136,7 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
                 }
             }
         } else if (action == 0x07) { // Increase Storage Slots
-            slea.skip(1);
-            int cash = slea.readInt();
+            int cash = slea.readByte() == 1 ? 2 : 1;
             byte mode = slea.readByte();
             if (mode == 0) {
                 if (cs.getCash(cash) < 4000) {
@@ -163,18 +160,17 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
                 }
             }
         } else if (action == 0x08) { // Increase Character Slots
-                slea.skip(1); 
-                int cash = slea.readInt();
-                CashItem cItem = CashItemFactory.getItem(slea.readInt());
+            int cash = slea.readByte() == 1 ? 2 : 1;
+            CashItem cItem = CashItemFactory.getItem(slea.readInt());
 
-                if (!canBuy(cItem, cs.getCash(cash)))
-                    return;
+            if (!canBuy(cItem, cs.getCash(cash)))
+                return;
 
-                if (c.gainCharacterSlot()) {
-                    c.announce(MaplePacketCreator.showBoughtCharacterSlot(c.getCharacterSlots()));
-                    cs.gainCash(cash, -cItem.getPrice());
-                    c.announce(MaplePacketCreator.showCash(chr));
-                }
+            if (c.gainCharacterSlot()) {
+                c.announce(MaplePacketCreator.showBoughtCharacterSlot(c.getCharacterSlots()));
+                cs.gainCash(cash, -cItem.getPrice());
+                c.announce(MaplePacketCreator.showCash(chr));
+            }
         } else if (action == 0x0D) { // Take from Cash Inventory
             Item item = cs.findByCashId(slea.readInt());
             if (item == null) {
@@ -195,9 +191,8 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
             cs.addToInventory(item);
             mi.removeSlot(item.getPosition());
             c.announce(MaplePacketCreator.putIntoCashInventory(item, c.getAccID()));
-        } else if (action == 0x1D) { //crush ring (action 28)
+        } else if (action == 0x1D) { //crush ring
             if (checkBirthday(c, slea.readInt())) {
-                int toCharge = slea.readInt();
                 int SN = slea.readInt();
                 String recipient = slea.readMapleAsciiString();
                 String text = slea.readMapleAsciiString();
@@ -216,7 +211,7 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
                     cs.addToInventory(item);
                     c.announce(MaplePacketCreator.showBoughtCashItem(item, c.getAccID()));
                     cs.gift(partner.getId(), chr.getName(), text, item.getSN(), (ringid + 1));
-                    cs.gainCash(toCharge, -ring.getPrice());
+                    cs.gainCash(1, -ring.getPrice());
                     chr.addCrushRing(MapleRing.loadFromDb(ringid));
                     try {
                         chr.sendNote(partner.getName(), text, (byte) 1);
@@ -240,8 +235,6 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
             c.announce(MaplePacketCreator.showCash(c.getPlayer()));
         } else if (action == 0x23) { //Friendship :3
             if (checkBirthday(c, slea.readInt())) {
-                int payment = slea.readByte();
-                slea.skip(3); //0s
                 int snID = slea.readInt();
                 CashItem ring = CashItemFactory.getItem(snID);
                 String sentTo = slea.readMapleAsciiString();
@@ -258,7 +251,7 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
                     cs.addToInventory(item);
                     c.announce(MaplePacketCreator.showBoughtCashItem(item, c.getAccID()));
                     cs.gift(partner.getId(), chr.getName(), text, item.getSN(), (ringid + 1));
-                    cs.gainCash(payment, -ring.getPrice());
+                    cs.gainCash(1, -ring.getPrice());
                     chr.addFriendshipRing(MapleRing.loadFromDb(ringid));
                     try {
                         chr.sendNote(partner.getName(), text, (byte) 1);

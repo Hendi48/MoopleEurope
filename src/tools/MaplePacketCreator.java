@@ -608,29 +608,25 @@ public class MaplePacketCreator {
      * Gets a successful authentication and PIN Request packet.
      *
      * @param c
-     * @param account The account name.
-     * @return The PIN request packet.
+     * @return The auth success packet.
      */
     public static byte[] getAuthSuccess(MapleClient c) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.LOGIN_STATUS.getValue());
+        mplew.write(0); // status
+        mplew.write(0);
         mplew.writeInt(0);
-        mplew.writeShort(0);
-        mplew.writeInt(c.getAccID()); //user id
+        mplew.writeInt(c.getAccID()); // user id
         mplew.write(c.getGender());
-        mplew.writeBool(c.gmLevel() > 0); //admin byte
-        short toWrite = (short) (c.gmLevel() * 32);
-        //toWrite = toWrite |= 0x100; only in higher versions
-        mplew.write(toWrite > 0x80 ? 0x80 : toWrite);//0x80 is admin, 0x20 and 0x40 = subgm
-        mplew.writeBool(c.gmLevel() > 0);
-        //mplew.writeShort(toWrite > 0x80 ? 0x80 : toWrite); only in higher versions...
+        mplew.write(c.gmLevel() > 0 ? 1 : 0); // grade code
+        mplew.write(c.gmLevel() > 0 ? 0x80 : 0); // sub grade code - 0x80 is the only value checked by EMS
+        mplew.write(0); // country id (unused by client)
         mplew.writeMapleAsciiString(c.getAccountName());
         mplew.write(8); // required to be 8 or you get a "free gift" dialog whenever entering Cash Shop
-        mplew.write(0); //isquietbanned
-        mplew.writeLong(0);//isquietban time
-        mplew.writeLong(0); //creation time
-        mplew.writeInt(0);
-        mplew.writeShort(2);//PIN
+        mplew.writeBool(false); // isquietbanned
+        mplew.writeLong(0); // isquietban time
+        mplew.writeLong(0); // creation time
+        mplew.writeBool(false); // password renewal hint
 
         return mplew.getPacket();
     }

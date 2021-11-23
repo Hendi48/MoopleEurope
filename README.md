@@ -15,6 +15,14 @@ Server source for EMS v65. Based on MoopleDEV v83 by kevintjuh93.
 1. Run the `create_server` script which will walk you through configuration.
 1. Run the `launch_server` script that was created automatically in the previous step.
 
+### Accounts
+
+Add accounts by adding them to the `accounts` table.
+
+* Mandatory fields are `name` and `password` (can be plaintext). It is recommended to also set `birthday` because it is checked in certain places ingame.
+* Set `nxCredit` to give an account NX. Note that `nxPrepaid` is not supported by EMS.
+* Set `gm` to 1 in order to give an account GM rights. Levels higher than 1 are technically supported but of no real practical relevance.
+
 ## Building
 
 The project uses an Ant-based build. It also comes with a NetBeans project. You can use any IDE you like, though - just add the `src` folder as sources and add the jars from `lib` to the classpath.

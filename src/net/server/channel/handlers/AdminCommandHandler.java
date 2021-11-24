@@ -76,6 +76,10 @@ public final class AdminCommandHandler extends AbstractMaplePacketHandler {
                 break;
             case 0x03: // /ban <name>
                 victim = slea.readMapleAsciiString();
+                if (victim.toLowerCase().equals(c.getPlayer().getName().toLowerCase())) {
+                    c.getPlayer().message("Blocked attempt to ban yourself.");
+                    break;
+                }
                 String reason = victim + " permanent banned by " + c.getPlayer().getName();
                 target = c.getChannelServer().getPlayerStorage().getCharacterByName(victim);
                 if (target != null) {
@@ -115,10 +119,10 @@ public final class AdminCommandHandler extends AbstractMaplePacketHandler {
                     c.announce(MaplePacketCreator.getGMEffect(6, (byte) 1));
                 }
                 break;
-            case 0x10: // /h, information by vana (and tele mode f1) ... hide ofcourse
+            case 0x0F: // /h, information by vana (and tele mode f1) ... hide ofcourse
                 c.getPlayer().Hide(slea.readByte() == 1);
                 break;
-            case 0x11: // Entering a map
+            case 0x10: // Entering a map
                 switch (slea.readByte()) {
                     case 0:// /u
                         StringBuilder sb = new StringBuilder("USERS ON THIS MAP: ");
@@ -132,12 +136,12 @@ public final class AdminCommandHandler extends AbstractMaplePacketHandler {
                         break;
                 }
                 break;
-            case 0x12: // Send
+            case 0x11: // Send
                 victim = slea.readMapleAsciiString();
                 int mapId = slea.readInt();
                 c.getChannelServer().getPlayerStorage().getCharacterByName(victim).changeMap(c.getChannelServer().getMapFactory().getMap(mapId));
                 break;
-            case 0x15: // Kill
+            case 0x14: // Kill
                 int mobToKill = slea.readInt();
                 int amount = slea.readInt();
                 List<MapleMapObject> monsterx = c.getPlayer().getMap().getMapObjectsInRange(c.getPlayer().getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(MapleMapObjectType.MONSTER));
@@ -149,17 +153,17 @@ public final class AdminCommandHandler extends AbstractMaplePacketHandler {
                     }
                 }
                 break;
-            case 0x16: // Questreset
+            case 0x15: // Questreset
                 MapleQuest.getInstance(slea.readShort()).reset(c.getPlayer());
                 break;
-            case 0x17: // Summon
+            case 0x16: // Summon
                 int mobId = slea.readInt();
                 int quantity = slea.readInt();
                 for (int i = 0; i < quantity; i++) {
                     c.getPlayer().getMap().spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(mobId), c.getPlayer().getPosition());
                 }
                 break;
-            case 0x18: // Maple & Mobhp
+            case 0x17: // Maple & Mobhp
                 int mobHp = slea.readInt();
                 c.getPlayer().dropMessage("Monsters HP");
                 List<MapleMapObject> monsters = c.getPlayer().getMap().getMapObjectsInRange(c.getPlayer().getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(MapleMapObjectType.MONSTER));
@@ -170,7 +174,7 @@ public final class AdminCommandHandler extends AbstractMaplePacketHandler {
                     }
                 }
                 break;
-            case 0x1E: // Warn
+            case 0x1D: // Warn
                 victim = slea.readMapleAsciiString();
                 String message = slea.readMapleAsciiString();
                 target = c.getChannelServer().getPlayerStorage().getCharacterByName(victim);
@@ -181,7 +185,7 @@ public final class AdminCommandHandler extends AbstractMaplePacketHandler {
                     c.announce(MaplePacketCreator.getGMEffect(0x1E, (byte) 0));
                 }
                 break;
-            case 0x24:// /Artifact Ranking
+            case 0x2A:// /RelicRank
                 break;
             case 0x77: //Testing purpose
                 if (slea.available() == 4) {

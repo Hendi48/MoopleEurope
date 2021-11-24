@@ -713,12 +713,12 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         if (isGM() && hide != this.hidden) {
             if (!hide) {
                 this.hidden = false;
-                announce(MaplePacketCreator.getGMEffect(0x10, (byte) 0));
+                announce(MaplePacketCreator.getGMEffect(0x0F, (byte) 0));
                 getMap().broadcastMessage(this, MaplePacketCreator.spawnPlayerMapobject(this), false);
                 updatePartyMemberHP();
             } else {
                 this.hidden = true;
-                announce(MaplePacketCreator.getGMEffect(0x10, (byte) 1));
+                announce(MaplePacketCreator.getGMEffect(0x0F, (byte) 1));
                 if (!login) {
                     getMap().broadcastMessage(this, MaplePacketCreator.removePlayerFromMap(getId()), false);
                 }

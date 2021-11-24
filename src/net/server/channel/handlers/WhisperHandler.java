@@ -37,8 +37,11 @@ import tools.data.input.SeekableLittleEndianAccessor;
  * @author Matze
  */
 public final class WhisperHandler extends AbstractMaplePacketHandler {
+
+    @Override
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
         byte mode = slea.readByte();
+        slea.readInt();
         if (mode == 6) { // whisper
             String recipient = slea.readMapleAsciiString();
             String text = slea.readMapleAsciiString();
@@ -61,8 +64,6 @@ public final class WhisperHandler extends AbstractMaplePacketHandler {
             if (victim != null && c.getPlayer().gmLevel() >= victim.gmLevel()) {
                 if (victim.getCashShop().isOpened()) {
                     c.announce(MaplePacketCreator.getFindReply(victim.getName(), -1, 2));
-                //} else if (victim.inMTS()) {
-                //    c.announce(MaplePacketCreator.getFindReply(victim.getName(), -1, 0));
                 } else {
                     c.announce(MaplePacketCreator.getFindReply(victim.getName(), victim.getMap().getId(), 1));
                 }

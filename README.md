@@ -23,6 +23,16 @@ Add accounts by adding them to the `accounts` table.
 * Set `nxCredit` to give an account NX. Note that `nxPrepaid` is not supported by EMS.
 * Set `gm` to 1 in order to give an account GM rights. Levels higher than 1 are technically supported but of no real practical relevance.
 
+### GM Commands
+
+* /h <0 or 1> : Leave or enter Hide.
+* /m <mapid or part of map name> : Transfer to the given map.
+* /ban <name> : Permanently ban the given player.
+* /block <name> <duration (in days)> <HACK/BOT/AD/HARASS/CURSE/SCAM/MISCONDUCT/SELL/ICASH/TEMP/GM/IPROGRAM/MEGAPHONE> : Temporarily ban the given player.
+* /chase <name> : Transfer to the given player's map.
+
+...and more, check [Commands.java](src/client/command/Commands.java)
+
 ## Building
 
 The project uses an Ant-based build. It also comes with a NetBeans project. You can use any IDE you like, though - just add the `src` folder as sources and add the jars from `lib` to the classpath.

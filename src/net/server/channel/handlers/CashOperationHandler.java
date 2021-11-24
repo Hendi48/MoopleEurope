@@ -268,7 +268,7 @@ public final class CashOperationHandler extends AbstractMaplePacketHandler {
         }
     }
 
-    private static boolean checkBirthday(MapleClient c, int idate) {
+    public static boolean checkBirthday(MapleClient c, int idate) {
         int year = idate / 10000;
         int month = (idate - year * 10000) / 100;
         int day = idate - year * 10000 - month * 100;

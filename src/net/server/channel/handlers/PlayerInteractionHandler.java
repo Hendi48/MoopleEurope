@@ -57,56 +57,74 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
         CHAT_THING(8),
         EXIT(0xA),
         OPEN(0xB),
-        TRADE_BIRTHDAY(0x0E),
-        SET_ITEMS(0xF),
-        SET_MESO(0x10),
-        CONFIRM(0x11),
-        TRANSACTION(0x14),
-        ADD_ITEM(0x16),
-        BUY(0x17),
-        UPDATE_MERCHANT(0x19),
-        REMOVE_ITEM(0x1B),
-        BAN_PLAYER(0x1C),
-        MERCHANT_THING(0x1D),
-        OPEN_STORE(0x1E),
-        PUT_ITEM(0x21),
-        MERCHANT_BUY(0x22),
-        TAKE_ITEM_BACK(0x26),
-        MAINTENANCE_OFF(0x27),
-        MERCHANT_ORGANIZE(0x28),
-        CLOSE_MERCHANT(0x29),
-        REAL_CLOSE_MERCHANT(0x2A),
-        MERCHANT_MESO(0x2B),
-        SOMETHING(0x2D),
-        VIEW_VISITORS(0x2E),
-        BLACKLIST(0x2F),
-        REQUEST_TIE(0x32),
-        ANSWER_TIE(0x33),
-        GIVE_UP(0x34),
-        EXIT_AFTER_GAME(0x38),
-        CANCEL_EXIT(0x39),
-        READY(0x3A),
-        UN_READY(0x3B),
-        START(0x3D),
-        GET_RESULT(0x3E),
-        SKIP(0x3F),
-        MOVE_OMOK(0x40),
-        SELECT_CARD(0x44);
-        final byte code;
+        CHECK_BIRTHDAY(0x0D),
+        SET_ITEMS(0xE),
+        SET_MESO(0xF),
+        CONFIRM(0x10),
+        TRANSACTION(0x13),
+        ADD_ITEM(0x15),
+        BUY(0x16),
+        UPDATE_MERCHANT(0x17),
+        REMOVE_ITEM(0x19),
+        BAN_PLAYER(0x1A),
+        MERCHANT_THING(0x1B),
+        OPEN_STORE(0x1C),
+        PUT_ITEM(0x1F),
+        MERCHANT_BUY(0x20),
+        TAKE_ITEM_BACK(0x24),
+        MAINTENANCE_OFF(0x25),
+        MERCHANT_ORGANIZE(0x26),
+        CLOSE_MERCHANT(0x27),
+        REAL_CLOSE_MERCHANT(0x28),
+        MERCHANT_MESO(0x29),
+        SOMETHING(0x2B),
+        VIEW_VISITORS(0x2C),
+        BLACKLIST(0x2D),
+        REQUEST_TIE(0x30),
+        ANSWER_TIE(0x31),
+        GIVE_UP(0x32),
+        EXIT_AFTER_GAME(0x36),
+        CANCEL_EXIT(0x37),
+        READY(0x38),
+        UN_READY(0x3A),
+        START(0x3B),
+        GET_RESULT(0x3C),
+        SKIP(0x3D),
+        MOVE_OMOK(0x3E),
+        SELECT_CARD(0x42);
 
-        private Action(int code) {
-            this.code = (byte) code;
+        final int type;
+
+        private Action(int type) {
+            this.type = type;
         }
 
-        public byte getCode() {
-            return code;
+        public int getCode() {
+            return type;
         }
     }
 
     @Override
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        byte mode = slea.readByte();
+        int mode = slea.readByte();
         MapleCharacter chr = c.getPlayer();
+
+        if (mode == Action.CHECK_BIRTHDAY.getCode()) {
+            if (slea.readByte() == Action.VISIT.getCode()) {
+                int roomtype = slea.readByte();
+                if (roomtype == 5) {
+                    int birthday = slea.readInt();
+                    if (CashOperationHandler.checkBirthday(c, birthday)) {
+                        mode = Action.VISIT.getCode();
+                    }
+                } else {
+                    System.out.println("CHECK_BIRTHDAY sent for unexpected roomtype " + roomtype);
+                }
+            } else {
+                System.out.println("CHECK_BIRTHDAY sent for unexpected mode " + mode);
+            }
+        }
+
         if (mode == Action.CREATE.getCode()) {
             byte createType = slea.readByte();
             if (createType == 3) {// trade
@@ -150,6 +168,7 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
                 if (!chr.getMap().getMapObjectsInRange(chr.getPosition(), 23000, Arrays.asList(MapleMapObjectType.SHOP, MapleMapObjectType.HIRED_MERCHANT)).isEmpty()) {
                     return;
                 }
+                slea.readInt(); // tRequestTime
                 String desc = slea.readMapleAsciiString();
                 slea.skip(3);
                 int itemId = slea.readInt();
@@ -157,7 +176,9 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
                     return;
                 }
 
-                if (chr.getMapId() > 910000000 && chr.getMapId() < 910000023 || itemId > 5030000 && itemId < 5030012 || itemId > 5140000 && itemId < 5140006) {
+                if (chr.getMapId() > 910000000 && chr.getMapId() < 910000023
+                        && ((createType == 5 && itemId >= 5030000 && itemId < 5030012)
+                        || (createType == 4 && itemId >= 5140000 && itemId < 5140006))) {
                     if (createType == 4) {
                         MaplePlayerShop shop = new MaplePlayerShop(c.getPlayer(), desc);
                         chr.setPlayerShop(shop);
@@ -229,7 +250,8 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
                     chr.setHiredMerchant(merchant);
                 }
             }
-        } else if (mode == Action.CHAT.getCode()) { // chat lol
+        } else if (mode == Action.CHAT.getCode()) {
+            slea.readInt(); // tRequestTime
             HiredMerchant merchant = chr.getHiredMerchant();
             if (chr.getTrade() != null) {
                 chr.getTrade().chat(slea.readMapleAsciiString());

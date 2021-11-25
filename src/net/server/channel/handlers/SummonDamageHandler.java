@@ -25,7 +25,7 @@ import client.MapleCharacter;
 import client.MapleClient;
 import client.Skill;
 import client.SkillFactory;
-import client.status.MonsterStatusEffect;
+import server.life.MonsterStatusEffect;
 import java.util.ArrayList;
 import java.util.List;
 import net.AbstractMaplePacketHandler;

@@ -28,7 +28,7 @@ import client.Skill;
 import client.SkillFactory;
 import client.inventory.Item;
 import client.inventory.MapleInventoryType;
-import client.status.MonsterStatus;
+import server.life.MonsterStatus;
 import constants.skills.Corsair;
 import java.awt.Point;
 import java.util.List;

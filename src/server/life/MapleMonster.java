@@ -27,8 +27,6 @@ import client.MapleClient;
 import client.MapleJob;
 import client.Skill;
 import client.SkillFactory;
-import client.status.MonsterStatus;
-import client.status.MonsterStatusEffect;
 import java.awt.Point;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;

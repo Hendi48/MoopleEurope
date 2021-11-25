@@ -28,7 +28,6 @@ import java.util.Collections;
 import java.util.List;
 import client.MapleCharacter;
 import client.MapleDisease;
-import client.status.MonsterStatus;
 import java.util.LinkedList;
 import java.util.Map;
 import tools.Randomizer;

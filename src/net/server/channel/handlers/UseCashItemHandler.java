@@ -59,6 +59,7 @@ public final class UseCashItemHandler extends AbstractMaplePacketHandler {
         }
         player.setLastUsedCashItem(System.currentTimeMillis());
         MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
+        slea.readInt(); // tRequestTime
         slea.readShort();
         int itemId = slea.readInt();
         int itemType = itemId / 10000;

@@ -5097,7 +5097,7 @@ public class MaplePacketCreator {
     public static byte[] sendHammerData(int hammerUsed) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.VICIOUS_HAMMER.getValue());
-        mplew.write(0x39);
+        mplew.write(0x3E); // ItemUpgradeSuccess
         mplew.writeInt(0);
         mplew.writeInt(hammerUsed);
         return mplew.getPacket();
@@ -5106,7 +5106,7 @@ public class MaplePacketCreator {
     public static byte[] sendHammerMessage() {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.VICIOUS_HAMMER.getValue());
-        mplew.write(0x3D);
+        mplew.write(0x42); // ItemUpgradeDone
         mplew.writeInt(0);
         return mplew.getPacket();
     }
@@ -5116,7 +5116,7 @@ public class MaplePacketCreator {
     }
 
     public static byte[] showMonsterBookPickup() {
-        return showSpecialEffect(14);
+        return showSpecialEffect(13); // no-op in EMS
     }
 
     public static byte[] showEquipmentLevelUp() {
@@ -5129,8 +5129,8 @@ public class MaplePacketCreator {
 
     /**
      * 6 = Exp did not drop (Safety Charms) 7 = Enter portal sound 8 = Job
-     * change 9 = Quest complete 10 = Recovery 14 = Monster book pickup 15 =
-     * Equipment levelup 16 = Maker Skill Success 19 = Exp card [500, 200, 50]
+     * change 9 = Quest complete 10 = Recovery 14 = LotteryUse 15 =
+     * Equipment levelup 16 = Maker Skill Success 17 = Exp card [500, 200, 50]
      *
      * @param effect
      * @return
@@ -5170,7 +5170,7 @@ public class MaplePacketCreator {
     public static byte[] showWheelsLeft(int left) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SHOW_ITEM_GAIN_INCHAT.getValue());
-        mplew.write(0x15);
+        mplew.write(0x13);
         mplew.write(left);
         return mplew.getPacket();
     }

@@ -75,9 +75,7 @@ public enum MapleBuffStat {
     WEAKEN(0x4000000000000000L),
     FINALATTACK(0x80000000L),
     SPARK(0x20000000L),
-    BATTLESHIP(0xA00000040L),
-    DASH2(0x8000000000000L, true), // correct (speed)
-    DASH(0x10000000000000L, true), // correct (jump)
+    BATTLESHIP(0xA00000040L), // what the actual fuck?
     ELEMENTAL_RESET(0x200000000L, true), 
     ARAN_COMBO(0x1000000000L, true),
     COMBO_DRAIN(0x2000000000L, true),
@@ -85,10 +83,15 @@ public enum MapleBuffStat {
     BODY_PRESSURE(0x8000000000L, true),
     SMART_KNOCKBACK(0x10000000000L, true),
     PYRAMID_PQ(0x20000000000L, true),
-    ENERGY_CHARGE(0x4000000000000L, true),
-    MONSTER_RIDING(0x20000000000000L, true),
-    HOMING_BEACON(0x80000000000000L, true),
-    SPEED_INFUSION(0x100000000000000L, true);
+
+    ENERGY_CHARGE(0x10000_00000000L, true), // 80
+    DASH_SPEED(0x20000_00000000L, true), // 81
+    DASH_JUMP(0x40000_00000000L, true), // 82
+    MONSTER_RIDING(0x80000_00000000L, true), // 83
+    SPEED_INFUSION(0x100000_00000000L, true), // 84
+    HOMING_BEACON(0x200000_00000000L, true), // 85
+    UNDEAD(0x400000_00000000L, true); // 86
+
     private final long i;
     private final boolean isFirst;
 
@@ -108,5 +111,9 @@ public enum MapleBuffStat {
 
     public boolean isFirst() {
         return isFirst;
+    }
+
+    public boolean isTwoStateBuff() {
+        return ordinal() >= ENERGY_CHARGE.ordinal();
     }
 }

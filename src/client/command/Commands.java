@@ -87,7 +87,7 @@ public class Commands {
                 list.add(new Pair<>(MapleBuffStat.MORPH, 8));
                 list.add(new Pair<>(MapleBuffStat.CONFUSE, 1));
                 chr.announce(MaplePacketCreator.giveBuff(0, 0, list));
-                chr.getMap().broadcastMessage(chr, MaplePacketCreator.giveForeignBuff(chr.getId(), list));
+                chr.getMap().broadcastMessage(chr, MaplePacketCreator.giveForeignBuff(chr.getId(), 0, list));
                 break;
             default:
                 if (chr.gmLevel() == 0) {

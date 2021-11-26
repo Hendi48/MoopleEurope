@@ -89,7 +89,7 @@ public final class CloseRangeDamageHandler extends AbstractDealDamageHandler {
                     player.setBuffedValue(MapleBuffStat.COMBO, neworbcount);                 
                     duration -= (int) (System.currentTimeMillis() - player.getBuffedStarttime(MapleBuffStat.COMBO));
                     c.announce(MaplePacketCreator.giveBuff(oid, duration, stat));
-                    player.getMap().broadcastMessage(player, MaplePacketCreator.giveForeignBuff(player.getId(), stat), false);
+                    player.getMap().broadcastMessage(player, MaplePacketCreator.giveForeignBuff(player.getId(), oid, stat), false);
                 }
             } else if (player.getSkillLevel(player.isCygnus() ? SkillFactory.getSkill(15100004) : SkillFactory.getSkill(5110001)) > 0 && (player.getJob().isA(MapleJob.MARAUDER) || player.getJob().isA(MapleJob.THUNDERBREAKER2))) {
                 for (int i = 0; i < attack.numAttacked; i++) {

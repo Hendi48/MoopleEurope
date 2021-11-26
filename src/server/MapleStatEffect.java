@@ -380,8 +380,8 @@ public class MapleStatEffect {
                 case ThunderBreaker.DASH:
                 case Beginner.SPACE_DASH:
                 case Noblesse.SPACE_DASH:
-                    statups.add(new Pair<>(MapleBuffStat.DASH2, Integer.valueOf(ret.x)));
-                    statups.add(new Pair<>(MapleBuffStat.DASH, Integer.valueOf(ret.y)));
+                    statups.add(new Pair<>(MapleBuffStat.DASH_SPEED, Integer.valueOf(ret.x)));
+                    statups.add(new Pair<>(MapleBuffStat.DASH_JUMP, Integer.valueOf(ret.y)));
                     break;
                 case Corsair.SPEED_INFUSION:
                 case Buccaneer.SPEED_INFUSION:
@@ -881,9 +881,7 @@ public class MapleStatEffect {
             } else {
                 givemount = applyto.getMount();
             }
-            localDuration = sourceid;
-            localsourceid = ridingLevel;
-            localstatups = Collections.singletonList(new Pair<>(MapleBuffStat.MONSTER_RIDING, 0));
+            localstatups = Collections.singletonList(new Pair<>(MapleBuffStat.MONSTER_RIDING, ridingLevel));
         } else if (isSkillMorph()) {
             localstatups = Collections.singletonList(new Pair<>(MapleBuffStat.MORPH, getMorph(applyto)));
         }
@@ -897,20 +895,16 @@ public class MapleStatEffect {
             if (getSummonMovementType() == null) {
                 buff = MaplePacketCreator.giveBuff((skill ? sourceid : -sourceid), localDuration, localstatups);
             }
-            if (isDash()) {
-                buff = MaplePacketCreator.givePirateBuff(statups, sourceid, seconds);
-                mbuff = MaplePacketCreator.giveForeignDash(applyto.getId(), sourceid, seconds, localstatups);
-            } else if (isInfusion()) {
-                buff = MaplePacketCreator.givePirateBuff(statups, sourceid, seconds);
-                mbuff = MaplePacketCreator.giveForeignInfusion(applyto.getId(), x, localDuration);
+            if (isDash() || isInfusion()) {
+                mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), sourceid, localstatups);
             } else if (isDs()) {
                 List<Pair<MapleBuffStat, Integer>> dsstat = Collections.singletonList(new Pair<>(MapleBuffStat.DARKSIGHT, 0));
-                mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), dsstat);
+                mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), sourceid, dsstat);
             } else if (isCombo()) {
-                mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), statups);
+                mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), sourceid, statups);
             } else if (isMonsterRiding()) {
                 buff = MaplePacketCreator.giveBuff(localsourceid, localDuration, localstatups);
-                mbuff = MaplePacketCreator.showMonsterRiding(applyto.getId(), givemount);
+                mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), sourceid, localstatups);
                 localDuration = duration;
                 if (sourceid == Corsair.BATTLE_SHIP) {//hp
                     if (applyto.getBattleshipHp() == 0) {
@@ -919,15 +913,15 @@ public class MapleStatEffect {
                 }
             } else if (isShadowPartner()) {
                 List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<>(MapleBuffStat.SHADOWPARTNER, 0));
-                mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), stat);
+                mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), sourceid, stat);
             } else if (isSoulArrow()) {
                 List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<>(MapleBuffStat.SOULARROW, 0));
-                mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), stat);
+                mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), sourceid, stat);
             } else if (isEnrage()) {
                 applyto.handleOrbconsume();
             } else if (isMorph()) {
                 List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<>(MapleBuffStat.MORPH, Integer.valueOf(getMorph(applyto))));
-                mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), stat);
+                mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), sourceid, stat);
             } else if (isTimeLeap()) {
                 for (PlayerCoolDownValueHolder i : applyto.getAllCooldowns()) {
                     if (i.skillId != Buccaneer.TIME_LEAP) {

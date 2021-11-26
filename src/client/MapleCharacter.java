@@ -2218,7 +2218,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
             client.announce(MaplePacketCreator.giveBuff(energybar, 0, stat));
             client.announce(MaplePacketCreator.showOwnBuffEffect(energycharge.getId(), 2));
             getMap().broadcastMessage(this, MaplePacketCreator.showBuffeffect(id, energycharge.getId(), 2));
-            getMap().broadcastMessage(this, MaplePacketCreator.giveForeignBuff(energybar, stat));
+            getMap().broadcastMessage(this, MaplePacketCreator.giveForeignBuff(energybar, energycharge.getId(), stat));
         }
         if (energybar >= 10000 && energybar < 11000) {
             energybar = 15000;
@@ -2230,7 +2230,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
                     List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<>(MapleBuffStat.ENERGY_CHARGE, energybar));
                     setBuffedValue(MapleBuffStat.ENERGY_CHARGE, energybar);
                     client.announce(MaplePacketCreator.giveBuff(energybar, 0, stat));
-                    getMap().broadcastMessage(chr, MaplePacketCreator.giveForeignBuff(energybar, stat));
+                    getMap().broadcastMessage(chr, MaplePacketCreator.giveForeignBuff(energybar, energycharge.getId(), stat));
                 }
             }, ceffect.getDuration());
         }
@@ -2242,7 +2242,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<>(MapleBuffStat.COMBO, 1));
         setBuffedValue(MapleBuffStat.COMBO, 1);
         client.announce(MaplePacketCreator.giveBuff(skillid, combo.getEffect(getSkillLevel(combo)).getDuration() + (int) ((getBuffedStarttime(MapleBuffStat.COMBO) - System.currentTimeMillis())), stat));
-        getMap().broadcastMessage(this, MaplePacketCreator.giveForeignBuff(getId(), stat), false);
+        getMap().broadcastMessage(this, MaplePacketCreator.giveForeignBuff(getId(), skillid, stat), false);
     }
 
     public boolean hasEntered(String script) {

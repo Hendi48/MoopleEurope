@@ -166,7 +166,7 @@ public class Commands {
             player.setHpMp(30000);
         } else if (sub[0].equals("id")) {
             try {
-                try (BufferedReader dis = new BufferedReader(new InputStreamReader(new URL("http://www.mapletip.com/search_java.php?search_value=" + sub[1] + "&check=true").openConnection().getInputStream()))) {
+                try (BufferedReader dis = new BufferedReader(new InputStreamReader(new URL("https://www.mapletip.com/search_java.php?search_value=" + sub[1] + "&check=true").openConnection().getInputStream()))) {
                     String s;
                     while ((s = dis.readLine()) != null) {
                         player.dropMessage(s);
